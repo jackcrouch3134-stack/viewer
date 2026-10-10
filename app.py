@@ -9,6 +9,7 @@ import time
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 app = Flask(__name__, static_folder=str(STATIC_DIR))
+app.config["JSON_SORT_KEYS"] = False
 
 state = {
     "compilations": 0,
@@ -140,7 +141,20 @@ def api_calibrate():
     return jsonify(result)
 
 
+@app.route("/health")
+def health_check():
+    with lock:
+        return jsonify({
+            "status": "ok",
+            "service": "viewer",
+            "version": state["version"],
+            "modules": len(state["modules"]),
+            "autonomous_mode": True,
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+        })
+
+
 if __name__ == "__main__":
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "8000"))
-    app.run(host=host, port=port, debug=True)
+    app.run(host=host, port=port, debug=False)
