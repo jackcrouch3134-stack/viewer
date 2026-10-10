@@ -1,15 +1,60 @@
-from flask import Flask, abort, jsonify, request, send_from_directory
+from datetime import datetime
+import hashlib
+import re
+import threading
+import time
 from pathlib import Path
 
+from flask import Flask, abort, jsonify, request, send_from_directory
+
+from agent_coordinator import AgentCoordinator
 from backend_ai import backend_ai
 from frontend_ai import frontend_ai
 from ui_agent import ui_agent
-from agent_coordinator import AgentCoordinator
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 app = Flask(__name__, static_folder=str(STATIC_DIR))
 
+state = {"compilations": 0, "updates": 0, "version": "1.0.0", "modules": {}}
+lock = threading.Lock()
 coordinator = AgentCoordinator(backend_ai, frontend_ai, ui_agent)
+
+
+def intent_of(code):
+    low = code.lower()
+    for word, name in (("receive", "receiver"), ("transmit", "transmitter"),
+                        ("analyze", "analyzer"), ("process", "processor")):
+        if word in low:
+            return name
+    return "unknown"
+
+
+def compile_code(code):
+    module_id = hashlib.sha256(code.encode()).hexdigest()[:16]
+    entry_points = re.findall(r"def\s+(\w+)\s*\(", code)
+    with lock:
+        state["compilations"] += 1
+        state["modules"][module_id] = {
+            "module_id": module_id,
+            "version": state["version"],
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "code_intent": intent_of(code),
+            "optimizations": len(entry_points),
+        }
+    return state["modules"][module_id]
+
+
+def auto_upgrade():
+    while True:
+        time.sleep(30)
+        with lock:
+            if state["modules"]:
+                major, minor, patch = state["version"].split(".")
+                state["version"] = f"{major}.{minor}.{int(patch) + 1}"
+                state["updates"] += 1
+
+
+threading.Thread(target=auto_upgrade, daemon=True).start()
 
 
 @app.route("/")
@@ -18,39 +63,54 @@ def index():
 
 
 @app.route("/static/<path:name>")
-<<<<<<< HEAD
 def static_assets(name):
-    return send_from_directory(STATIC_DIR, name)
-
-
-@app.route("/<path:name>")
-def root_assets(name):
-    # lets pages use /style.css, /app.js, /cartoon.html etc.
-    if name.startswith("api/"):
-        abort(404)
-=======
-def static_files(name):
->>>>>>> origin/main
     return send_from_directory(STATIC_DIR, name)
 
 
 @app.route("/<path:filename>")
 def root_static_files(filename):
     """Serve static assets at the site root, matching the dashboard HTML."""
+    if filename.startswith("api/"):
+        abort(404)
     return send_from_directory(STATIC_DIR, filename)
 
 
 @app.route("/api/state")
+@app.route("/api/compiler/state")
 def api_state():
-    return jsonify(coordinator.get_unified_state())
+    with lock:
+        payload = {
+            "system_state": {"status": "online", "autonomous_mode": True},
+            "compiled_modules": len(state["modules"]),
+            "antenna_version": state["version"],
+            "total_compilations": state["compilations"],
+            "total_updates": state["updates"],
+            "last_activity": datetime.utcnow().isoformat() + "Z",
+        }
+    return jsonify(payload)
 
 
 @app.route("/api/compile", methods=["POST"])
+@app.route("/api/compiler/compile", methods=["POST"])
 def api_compile():
     data = request.get_json(silent=True) or {}
     code = data.get("code", "")
     result = coordinator.route_compile_request(code)
-    return jsonify({"status": "ok", "result": result})
+    legacy = compile_code(code)
+    return jsonify({
+        "status": "compiled",
+        "module_id": legacy["module_id"],
+        "version": legacy["version"],
+        "optimizations": legacy["optimizations"],
+        "reorganizations": 0,
+        "result": result,
+    })
+
+
+@app.route("/api/compiler/modules")
+def api_modules():
+    with lock:
+        return jsonify(modules=list(state["modules"].values()))
 
 
 @app.route("/api/gesture", methods=["POST"])
@@ -101,7 +161,7 @@ def api_health():
         "status": "healthy",
         "backend": backend_ai.status,
         "frontend": frontend_ai.status,
-        "ui": ui_agent.status
+        "ui": ui_agent.status,
     })
 
 

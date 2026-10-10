@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from app import app
 
 
@@ -16,34 +15,13 @@ def test_root_assets_are_served_from_static_directory():
 
 def test_api_routes_still_work():
     client = app.test_client()
-    response = client.get("/api/compiler/state")
 
+    response = client.get("/api/compiler/state")
     assert response.status_code == 200
     payload = response.get_json()
     assert payload["system_state"]["status"] == "online"
     assert payload["compiled_modules"] == 0
-=======
-import unittest
 
-from app import app
-
-
-class AppStaticRoutesTest(unittest.TestCase):
-    def setUp(self):
-        self.client = app.test_client()
-
-    def test_root_static_assets_are_served(self):
-        for path in ["/style.css", "/app.js"]:
-            response = self.client.get(path)
-            self.assertEqual(response.status_code, 200)
-
-    def test_health_endpoint_still_works(self):
-        response = self.client.get("/api/health")
-        self.assertEqual(response.status_code, 200)
-        payload = response.get_json()
-        self.assertEqual(payload["status"], "healthy")
-
-
-if __name__ == "__main__":
-    unittest.main()
->>>>>>> origin/main
+    health = client.get("/api/health")
+    assert health.status_code == 200
+    assert health.get_json()["status"] == "healthy"
