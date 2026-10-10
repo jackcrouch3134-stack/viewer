@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Earth Viewer - Live Satellite & Atmospheric View</title>
+  <link rel="stylesheet" href="/viewer.css" />
+</head>
+<body>
+  <div class="viewer-container">
+    <header class="viewer-header">
+      <h1>🌍 LIVE EARTH VIEWER 🌍</h1>
+      <p>Satellite • Atmospheric Layers • Biological Detection</p>
+      <div class="header-controls">
+        <button id="toggleLayers" class="control-btn">TOGGLE LAYERS</button>
+        <button id="zoomIn" class="control-btn">ZOOM IN</button>
+        <button id="zoomOut" class="control-btn">ZOOM OUT</button>
+        <button id="rotate" class="control-btn">ROTATE</button>
+      </div>
+    </header>
+
+    <main class="viewer-main">
+      <!-- LEFT: 3D EARTH VIEWER -->
+      <section class="earth-section">
+        <canvas id="earthCanvas" width="800" height="600"></canvas>
+        <div class="canvas-overlay">
+          <div class="info-panel">
+            <span id="locationInfo">40.7128°N, 74.0060°W</span>
+            <span id="altitudeInfo">Altitude: 0 km</span>
+            <span id="signalInfo">Signal: 137.1 MHz</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER: ATMOSPHERIC LAYERS -->
+      <section class="atmosphere-section">
+        <h2>Atmospheric Layers</h2>
+        
+        <div class="layer-display troposphere">
+          <div class="layer-name">Troposphere</div>
+          <div class="layer-range">0-12 km</div>
+          <div class="layer-data">
+            <span id="tropoTemp">Temp: 15°C</span>
+            <span id="tropoCloud">Cloud: 45%</span>
+            <span id="tropoLife">Life: 72%</span>
+          </div>
+          <canvas id="tropoCanvas" class="layer-canvas" width="200" height="80"></canvas>
+        </div>
+
+        <div class="layer-display stratosphere">
+          <div class="layer-name">Stratosphere</div>
+          <div class="layer-range">12-50 km</div>
+          <div class="layer-data">
+            <span id="stratOzone">Ozone: 8.0</span>
+            <span id="stratUV">UV: 85%</span>
+            <span id="stratTemp">Temp: -56°C</span>
+          </div>
+          <canvas id="stratCanvas" class="layer-canvas" width="200" height="80"></canvas>
+        </div>
+
+        <div class="layer-display mesosphere">
+          <div class="layer-name">Mesosphere</div>
+          <div class="layer-range">50-85 km</div>
+          <div class="layer-data">
+            <span id="mesoMeteor">Meteors: 15%</span>
+            <span id="mesoTemp">Temp: -90°C</span>
+            <span id="mesoNLC">Clouds: 2%</span>
+          </div>
+          <canvas id="mesoCanvas" class="layer-canvas" width="200" height="80"></canvas>
+        </div>
+
+        <div class="layer-display thermosphere">
+          <div class="layer-name">Thermosphere</div>
+          <div class="layer-range">85-600 km</div>
+          <div class="layer-data">
+            <span id="thermoSat">Satellites: YES</span>
+            <span id="thermoIonize">Ionization: 45%</span>
+            <span id="thermoTemp">Temp: 1500K</span>
+          </div>
+          <canvas id="thermoCanvas" class="layer-canvas" width="200" height="80"></canvas>
+        </div>
+
+        <div class="layer-display exosphere">
+          <div class="layer-name">Exosphere</div>
+          <div class="layer-range">600+ km</div>
+          <div class="layer-data">
+            <span id="exoRays">Cosmic Rays: 80%</span>
+            <span id="exoWind">Solar Wind: 50%</span>
+            <span id="exoVacuum">Vacuum: 99.9%</span>
+          </div>
+          <canvas id="exoCanvas" class="layer-canvas" width="200" height="80"></canvas>
+        </div>
+      </section>
+
+      <!-- RIGHT: CREATURE TRACKING & SIGNALS -->
+      <section class="tracking-section">
+        <h2>Biological Detection</h2>
+        
+        <div class="tracking-panel">
+          <h3>🦋 Monarch Butterfly</h3>
+          <div class="creature-info">
+            <span>Population: 450,000</span>
+            <span>Location: 42.3°N, 93.0°W</span>
+            <span id="monarchStatus" class="status-active">Migration: ACTIVE</span>
+          </div>
+          <canvas id="monarchMap" class="tracking-canvas" width="180" height="100"></canvas>
+        </div>
+
+        <div class="tracking-panel">
+          <h3>🐋 Gray Whale</h3>
+          <div class="creature-info">
+            <span>Population: 12,000</span>
+            <span>Location: 60.0°N, 165.0°W</span>
+            <span id="whaleStatus" class="status-active">Migration: ACTIVE</span>
+          </div>
+          <canvas id="whaleMap" class="tracking-canvas" width="180" height="100"></canvas>
+        </div>
+
+        <div class="tracking-panel">
+          <h3>🐘 African Elephant</h3>
+          <div class="creature-info">
+            <span>Population: 380,000</span>
+            <span>Location: 2.5°S, 35.0°E</span>
+            <span id="elephantStatus" class="status-active">Migration: ACTIVE</span>
+          </div>
+          <canvas id="elephantMap" class="tracking-canvas" width="180" height="100"></canvas>
+        </div>
+
+        <div class="signal-panel">
+          <h3>📡 Satellite Signal</h3>
+          <div class="signal-display">
+            <div class="signal-meter">
+              <div class="signal-bar" id="signalBar"></div>
+              <span>Signal Quality: <strong id="signalQuality">92%</strong></span>
+            </div>
+            <div class="signal-info">
+              <p>Frequency: 137.1 MHz</p>
+              <p>Modulation: FM</p>
+              <p>Altitude: 800 km</p>
+              <p>Status: <span class="signal-live">● LIVE</span></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="viewer-footer">
+      <div class="status-bar">
+        <span id="compileStatus">Compiler: READY</span>
+        <span id="atmosphereStatus">Atmosphere: SCANNING</span>
+        <span id="creatureStatus">Creatures: TRACKED</span>
+        <span id="signalStatus">Signal: RECEIVING</span>
+      </div>
+      <p>Universal Earth Viewing System • Real-time Monitoring • Autonomous Intelligence</p>
+    </footer>
+  </div>
+
+  <script src="/viewer.js"></script>
+</body>
+</html>
