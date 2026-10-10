@@ -8,77 +8,101 @@ class UniversalViewerSystem {
   }
 
   setupEventListeners() {
-    document.getElementById("statusBtn").addEventListener("click", () => this.updateStatus());
     document.getElementById("compileBtn").addEventListener("click", () => this.compileCode());
     document.getElementById("analyzeBtn").addEventListener("click", () => this.analyzeAndCompile());
     document.getElementById("interpretBtn").addEventListener("click", () => this.interpretAtmosphere());
-    document.getElementById("bioBtn").addEventListener("click", () => this.analyzeBiology());
   }
 
   async updateStatus() {
-    const response = await fetch("/api/compiler/state");
-    const state = await response.json();
-    document.getElementById("compilationCount").textContent = state.total_compilations;
-    document.getElementById("updateCount").textContent = state.total_updates;
-    document.getElementById("versionDisplay").textContent = state.antenna_version;
-    document.getElementById("moduleCount").textContent = state.compiled_modules;
-    document.getElementById("systemInfo").innerHTML = `
-      <p><strong>Status:</strong> ${state.system_state.status}</p>
-      <p><strong>Autonomous Mode:</strong> ${state.system_state.autonomous_mode ? 'ON' : 'OFF'}</p>
-      <p><strong>Last Activity:</strong> ${new Date(state.last_activity).toLocaleTimeString()}</p>
-    `;
+    try {
+      const response = await fetch("/api/state");
+      const state = await response.json();
+
+      const backend = state.backend || {};
+      const frontend = state.frontend || {};
+      const ui = state.ui || {};
+
+      document.getElementById("compilationCount").textContent = backend.compilations || 0;
+      document.getElementById("updateCount").textContent = backend.updates || 0;
+      document.getElementById("versionDisplay").textContent = backend.version || "1.0.0";
+      document.getElementById("moduleCount").textContent = backend.modules_count || 0;
+
+      document.getElementById("currentPanel").textContent = frontend.panel || "Earth";
+      document.getElementById("zoomLevel").textContent = `${(frontend.zoom || 1).toFixed(1)}x`;
+      document.getElementById("signalQuality").textContent = `${frontend.signal_quality || 92}%`;
+
+      document.getElementById("gestureCount").textContent = ui.gesture_history || 0;
+      document.getElementById("alertCount").textContent = ui.pending_alerts || 0;
+      document.getElementById("feedbackCount").textContent = (ui.pending_alerts || 0) + (ui.gesture_history || 0);
+      document.getElementById("safeMode").textContent = (frontend.safe_mode === true || ui.safe_mode === true) ? "ON" : "OFF";
+
+      document.getElementById("systemStatus").innerHTML = '<span class="pulse"></span> ONLINE';
+      document.getElementById("backendStatus").textContent = backend.status || "ONLINE";
+      document.getElementById("frontendStatus").textContent = frontend.status || "ONLINE";
+      document.getElementById("uiStatus").textContent = ui.status || "ONLINE";
+    } catch (err) {
+      console.error("Status update failed:", err);
+    }
   }
 
   async compileCode() {
-    const response = await fetch("/api/compiler/compile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: "# Sample code" })
-    });
-    const result = await response.json();
-    alert(`Compiled module: ${result.module_id}\nOptimizations: ${result.optimizations}`);
-    this.updateStatus();
+    const code = document.getElementById("codeInput").value || "# Sample code\nprint('Compiling')";
+
+    try {
+      const response = await fetch("/api/compile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      });
+
+      const result = await response.json();
+      const m = result.result || {};
+      document.getElementById("compilerStatus").textContent = `✓ Compiled Module ${m.module_id || 'unknown'} (v${m.version || '1.0.0'})`;
+      this.updateStatus();
+    } catch (err) {
+      document.getElementById("compilerStatus").textContent = "✕ Compile failed";
+    }
   }
 
   async analyzeAndCompile() {
     const code = document.getElementById("codeInput").value;
     if (!code) {
-      alert("Paste code first");
+      document.getElementById("compilerStatus").textContent = "Please add code to analyze.";
       return;
     }
-    const response = await fetch("/api/compiler/compile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code })
-    });
-    const result = await response.json();
-    document.getElementById("compilerStatus").textContent = `✓ Compiled (v${result.version})`;
-    this.updateStatus();
+
+    await this.compileCode();
   }
 
   async interpretAtmosphere() {
     document.getElementById("atmosphereStatus").textContent = "Interpreting...";
-    setTimeout(() => { document.getElementById("atmosphereStatus").textContent = "✓ Complete"; }, 1000);
-  }
-
-  async analyzeBiology() {
-    document.getElementById("bioStatus").textContent = "Analyzing...";
-    setTimeout(() => { document.getElementById("bioStatus").textContent = "✓ 8 Species Detected"; }, 1000);
+    setTimeout(() => {
+      document.getElementById("atmosphereStatus").textContent = "✓ Complete";
+    }, 800);
   }
 
   async refreshModules() {
-    const response = await fetch("/api/compiler/modules");
-    const data = await response.json();
-    const list = document.getElementById("recentModules");
-    if (data.modules.length === 0) {
-      list.innerHTML = "No modules yet.";
-      return;
+    try {
+      const response = await fetch("/api/state");
+      const state = await response.json();
+      const backend = state.backend || {};
+      const list = document.getElementById("recentModules");
+      const modules = backend.modules || [];
+
+      if (!modules || modules.length === 0) {
+        list.innerHTML = '<div class="activity-item">No compiled modules yet.</div>';
+        return;
+      }
+
+      list.innerHTML = modules.slice(0, 5).map((m) => `
+        <div class="activity-item">
+          <span class="dot"></span>
+          ${m.intent || 'unknown'} • v${m.version || '1.0.0'} • ${m.module_id || 'n/a'}
+        </div>
+      `).join('');
+    } catch (err) {
+      console.error("Module refresh failed:", err);
     }
-    let html = "";
-    for (const module of data.modules.slice(0, 5)) {
-      html += `<div class="module-item">v${module.version} - ${module.code_intent || 'unknown'}</div>`;
-    }
-    list.innerHTML = html;
   }
 
   startAutoRefresh() {
@@ -87,6 +111,7 @@ class UniversalViewerSystem {
       this.refreshModules();
     }, this.refreshInterval);
     this.updateStatus();
+    this.refreshModules();
   }
 }
 
