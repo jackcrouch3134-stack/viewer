@@ -22,6 +22,12 @@ def static_files(name):
     return send_from_directory(STATIC_DIR, name)
 
 
+@app.route("/<path:filename>")
+def root_static_files(filename):
+    """Serve static assets at the site root, matching the dashboard HTML."""
+    return send_from_directory(STATIC_DIR, filename)
+
+
 @app.route("/api/state")
 def api_state():
     return jsonify(coordinator.get_unified_state())
