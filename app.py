@@ -26,6 +26,16 @@ def index():
     return send_from_directory(STATIC_DIR, "index.html")
 
 
+@app.route("/viewer")
+def viewer_page():
+    return send_from_directory(STATIC_DIR, "viewer.html")
+
+
+@app.route("/cartoon")
+def cartoon_page():
+    return send_from_directory(STATIC_DIR, "cartoon.html")
+
+
 @app.route("/static/<path:name>")
 def static_files(name):
     return send_from_directory(STATIC_DIR, name)

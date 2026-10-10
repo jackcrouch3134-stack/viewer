@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from threading import Lock
 
 
@@ -10,7 +10,7 @@ class RuntimeStateStore:
         self.app_name = "Earth-Aware Satellite Intelligence Platform"
         self.version = "1.1.0"
         self.status = "ONLINE"
-        self.started_at = datetime.utcnow().isoformat() + "Z"
+        self.started_at = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
         self.events = []
         self.alerts = []
         self.metrics = {
@@ -25,7 +25,7 @@ class RuntimeStateStore:
             "type": event_type,
             "message": message,
             "details": details or {},
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
         }
         with self._lock:
             self.events.insert(0, entry)
@@ -61,7 +61,7 @@ class RuntimeStateStore:
             self.status = status
 
     def add_alert(self, title, message, level="info"):
-        alert = {"title": title, "message": message, "level": level, "timestamp": datetime.utcnow().isoformat() + "Z"}
+        alert = {"title": title, "message": message, "level": level, "timestamp": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')}
         with self._lock:
             self.alerts.insert(0, alert)
             self.alerts = self.alerts[:10]
