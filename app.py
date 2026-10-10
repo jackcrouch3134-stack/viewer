@@ -54,8 +54,8 @@ def api_compile():
 
     try:
         result = coordinator.route_compile_request(code)
-    except ValueError as exc:
-        return api_error(str(exc), 400)
+    except ValueError:
+        return api_error("Invalid compile request.", 400)
 
     return jsonify({"status": "ok", "result": result})
 
@@ -92,8 +92,8 @@ def api_control():
 
     try:
         result = coordinator.route_slider_change(control, value)
-    except ValueError as exc:
-        return api_error(str(exc), 400)
+    except ValueError:
+        return api_error("Unsupported control value.", 400)
 
     return jsonify({"status": "ok", "result": result})
 
@@ -144,4 +144,4 @@ def api_health():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8000, debug=True)
+    app.run(host="127.0.0.1", port=8000, debug=False)

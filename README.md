@@ -62,6 +62,10 @@ python app.py
 http://localhost:8000
 ```
 
+## Static asset routing
+
+The dashboard loads CSS and JavaScript from the site root (`/style.css` and `/app.js`). The Flask app serves those files from the `static/` directory while also supporting `/static/...` requests for compatibility.
+
 ## API Endpoints
 
 The app exposes several JSON API routes:
@@ -75,9 +79,19 @@ The app exposes several JSON API routes:
 - `GET /api/feedback` – returns haptic and visual feedback queues
 - `GET /api/health` – checks system health
 
+All POST endpoints validate request payloads and return structured error responses when input is missing or invalid.
+
 ## Notes
 
-This is a lightweight prototype designed to illustrate a cooperative agent-based control dashboard. It is intended as a structured foundation for further expansion into more advanced Earth-observation telemetry, autonomous reasoning workflows, or richer front-end dashboards.
+This project is a lightweight prototype designed to illustrate a cooperative agent-based control dashboard. It is intended as a structured foundation for further expansion into more advanced Earth-observation telemetry, autonomous reasoning workflows, or richer front-end dashboards.
+
+## Validation
+
+Use the bundled tests to verify the app remains stable:
+
+```bash
+python -m unittest -q
+```
 
 ## License
 
