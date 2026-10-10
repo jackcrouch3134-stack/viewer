@@ -5,11 +5,13 @@ from backend_ai import backend_ai
 from frontend_ai import frontend_ai
 from ui_agent import ui_agent
 from agent_coordinator import AgentCoordinator
+from runtime_state import RuntimeStateStore
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 app = Flask(__name__, static_folder=str(STATIC_DIR), template_folder=str(STATIC_DIR))
 
 coordinator = AgentCoordinator(backend_ai, frontend_ai, ui_agent)
+runtime_state = RuntimeStateStore()
 
 
 def api_error(message, status_code=400, details=None):
@@ -37,7 +39,10 @@ def root_static_files(filename):
 
 @app.route("/api/state")
 def api_state():
-    return jsonify(coordinator.get_unified_state())
+    state = coordinator.get_unified_state()
+    state["runtime"] = runtime_state.get_snapshot()
+    runtime_state.increment_metric("requests")
+    return jsonify(state)
 
 
 @app.route("/api/compile", methods=["POST"])
@@ -57,7 +62,10 @@ def api_compile():
     except ValueError:
         return api_error("Invalid compile request.", 400)
 
-    return jsonify({"status": "ok", "result": result})
+    runtime_state.record_event("compile", "Compilation request processed", {"module_id": result.get("module_id")})
+    runtime_state.increment_metric("compiles")
+    runtime_state.add_alert("Compilation", f"Compiled module {result.get('module_id')}", "success")
+    return jsonify({"status": "ok", "result": result, "runtime": runtime_state.get_snapshot()})
 
 
 @app.route("/api/gesture", methods=["POST"])
@@ -74,7 +82,9 @@ def api_gesture():
         return api_error("Gesture data must be an object.", 400)
 
     state = coordinator.route_gesture(gesture_type, payload)
-    return jsonify({"status": "ok", "state": state})
+    runtime_state.record_event("gesture", f"Gesture processed: {gesture_type}", payload)
+    runtime_state.increment_metric("gestures")
+    return jsonify({"status": "ok", "state": state, "runtime": runtime_state.get_snapshot()})
 
 
 @app.route("/api/control", methods=["POST"])
@@ -95,7 +105,8 @@ def api_control():
     except ValueError:
         return api_error("Unsupported control value.", 400)
 
-    return jsonify({"status": "ok", "result": result})
+    runtime_state.record_event("control", f"Control updated: {control}", {"value": value})
+    return jsonify({"status": "ok", "result": result, "runtime": runtime_state.get_snapshot()})
 
 
 @app.route("/api/safety", methods=["POST"])
@@ -109,7 +120,8 @@ def api_safety():
     safe_mode = bool(data.get("safe_mode", True))
     strict_mode = bool(data.get("strict_mode", False))
     result = coordinator.route_safety_toggle(safe_mode, strict_mode)
-    return jsonify({"status": "ok", "result": result})
+    runtime_state.record_event("safety", "Safety settings updated", {"safe_mode": safe_mode, "strict_mode": strict_mode})
+    return jsonify({"status": "ok", "result": result, "runtime": runtime_state.get_snapshot()})
 
 
 @app.route("/api/alert", methods=["POST"])
@@ -124,7 +136,9 @@ def api_alert():
     message = data.get("message", "")
     level = data.get("level", "info")
     alert = ui_agent.show_alert(title, message, level)
-    return jsonify({"status": "ok", "alert": alert})
+    runtime_state.record_event("alert", title, {"message": message, "level": level})
+    runtime_state.add_alert(title, message, level)
+    return jsonify({"status": "ok", "alert": alert, "runtime": runtime_state.get_snapshot()})
 
 
 @app.route("/api/feedback")
@@ -139,6 +153,7 @@ def api_health():
         "backend": backend_ai.status,
         "frontend": frontend_ai.status,
         "ui": ui_agent.status,
+        "runtime": runtime_state.get_snapshot(),
         "system_state": coordinator.get_unified_state()
     })
 
