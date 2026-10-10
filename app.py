@@ -10,7 +10,19 @@ import time
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 app = Flask(__name__, static_folder=str(STATIC_DIR))
 
-state = {"compilations": 0, "updates": 0, "version": "1.0.0", "modules": {}}
+state = {
+    "compilations": 0,
+    "updates": 0,
+    "version": "1.0.0",
+    "modules": {},
+    "autonomy": {
+        "challenge_severity": 0.35,
+        "safety_bias": 0.8,
+        "realism_weight": 0.72,
+        "depth_weight": 0.7,
+        "last_calibration": "",
+    },
+}
 lock = threading.Lock()
 
 
@@ -46,6 +58,32 @@ def auto_upgrade():
                 major, minor, patch = state["version"].split(".")
                 state["version"] = f"{major}.{minor}.{int(patch) + 1}"
                 state["updates"] += 1
+
+
+def calibrate_challenge(challenge_level=0.35, realism_bias=0.72, depth_bias=0.7, safety_bias=0.8):
+    severity = max(0.0, min(1.0, challenge_level))
+    realism = max(0.0, min(1.0, realism_bias))
+    depth = max(0.0, min(1.0, depth_bias))
+    safety = max(0.0, min(1.0, safety_bias))
+
+    moderated_severity = severity * (1.0 - safety * 0.7)
+    weighted_realism = realism * 0.85 + (1.0 - moderated_severity) * 0.15
+    weighted_depth = depth * 0.9 + moderated_severity * 0.1
+
+    result = {
+        "challenge_severity": round(moderated_severity, 3),
+        "safety_bias": round(safety, 3),
+        "realism_weight": round(weighted_realism, 3),
+        "depth_weight": round(weighted_depth, 3),
+        "visible_safe": round(1.0 - moderated_severity, 3),
+        "perceived_weight": round((weighted_realism + weighted_depth) / 2.0, 3),
+        "summary": "Challenge intensity is softened while realism, depth, and weight remain present.",
+    }
+
+    with lock:
+        state["autonomy"].update(result)
+        state["autonomy"]["last_calibration"] = datetime.utcnow().isoformat() + "Z"
+    return result
 
 
 threading.Thread(target=auto_upgrade, daemon=True).start()
@@ -85,8 +123,21 @@ def api_state():
             antenna_version=state["version"],
             total_compilations=state["compilations"],
             total_updates=state["updates"],
+            autonomy=state["autonomy"],
             last_activity=datetime.utcnow().isoformat() + "Z",
         )
+
+
+@app.route("/api/autonomy/calibrate", methods=["POST"])
+def api_calibrate():
+    payload = request.get_json(silent=True) or {}
+    result = calibrate_challenge(
+        challenge_level=payload.get("challenge_level", state["autonomy"]["challenge_severity"]),
+        realism_bias=payload.get("realism_bias", state["autonomy"]["realism_weight"]),
+        depth_bias=payload.get("depth_bias", state["autonomy"]["depth_weight"]),
+        safety_bias=payload.get("safety_bias", state["autonomy"]["safety_bias"]),
+    )
+    return jsonify(result)
 
 
 if __name__ == "__main__":

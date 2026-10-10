@@ -13,6 +13,7 @@ class UniversalViewerSystem {
     document.getElementById("analyzeBtn").addEventListener("click", () => this.analyzeAndCompile());
     document.getElementById("interpretBtn").addEventListener("click", () => this.interpretAtmosphere());
     document.getElementById("bioBtn").addEventListener("click", () => this.analyzeBiology());
+    document.getElementById("calibrateBtn").addEventListener("click", () => this.calibrateAutonomy());
   }
 
   async updateStatus() {
@@ -64,6 +65,24 @@ class UniversalViewerSystem {
   async analyzeBiology() {
     document.getElementById("bioStatus").textContent = "Analyzing...";
     setTimeout(() => { document.getElementById("bioStatus").textContent = "✓ 8 Species Detected"; }, 1000);
+  }
+
+  async calibrateAutonomy() {
+    const payload = {
+      challenge_level: Number(document.getElementById("challengeLevel").value),
+      realism_bias: Number(document.getElementById("realismBias").value),
+      depth_bias: Number(document.getElementById("depthBias").value),
+      safety_bias: Number(document.getElementById("safetyBias").value)
+    };
+
+    const response = await fetch("/api/autonomy/calibrate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    document.getElementById("calibrationResult").textContent = `${result.summary} Severity ${result.challenge_severity}, Realism ${result.realism_weight}, Depth ${result.depth_weight}.`;
+    this.updateStatus();
   }
 
   async refreshModules() {
