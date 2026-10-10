@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌍 EARTH VIEWER - CARTOON EDITION 🌍</title>
+  <link rel="stylesheet" href="/cartoon.css" />
+</head>
+<body>
+  <div class="cartoon-universe">
+    <!-- HEADER: BIG CARTOONY TITLE -->
+    <header class="cartoon-header">
+      <div class="header-content">
+        <h1 class="bouncy-title">🌍 EARTH VIEWER 🌍</h1>
+        <p class="subtitle">Watch Our Planet Live!</p>
+        <div class="floating-icons">
+          <span class="floating-icon">🛰️</span>
+          <span class="floating-icon">🌤️</span>
+          <span class="floating-icon">🦋</span>
+          <span class="floating-icon">🐋</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="cartoon-main">
+      <!-- LEFT: BIG EARTH GLOBE -->
+      <section class="globe-section">
+        <div class="globe-container">
+          <div class="globe-wrapper">
+            <canvas id="globeCanvas" width="400" height="400" class="globe-canvas"></canvas>
+            <div class="globe-glow"></div>
+            <div class="rotating-satellites">
+              <div class="satellite" id="sat1">🛰️</div>
+              <div class="satellite" id="sat2">🛰️</div>
+            </div>
+          </div>
+          <p class="globe-label">🌎 Our Beautiful Planet 🌎</p>
+        </div>
+
+        <div class="info-cards">
+          <div class="info-card">
+            <span class="card-emoji">📍</span>
+            <p id="locationDisplay">Location: Earth!</p>
+          </div>
+          <div class="info-card">
+            <span class="card-emoji">🌡️</span>
+            <p id="tempDisplay">Temp: Varies!</p>
+          </div>
+          <div class="info-card">
+            <span class="card-emoji">📡</span>
+            <p id="signalDisplay">Signal: BEEP BOOP!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER: ATMOSPHERE LAYERS -->
+      <section class="atmosphere-layers">
+        <h2 class="section-title">🌫️ ATMOSPHERE LEVELS 🌫️</h2>
+        
+        <div class="layer-stack">
+          <div class="layer-card layer-1">
+            <div class="layer-emoji">🌤️</div>
+            <div class="layer-content">
+              <h3>TROPOSPHERE</h3>
+              <p>0-12 km • Where we live!</p>
+              <div class="layer-meter">
+                <div class="meter-fill" style="width: 45%"></div>
+              </div>
+              <p class="meter-label">Cloud Cover: 45%</p>
+            </div>
+          </div>
+
+          <div class="layer-card layer-2">
+            <div class="layer-emoji">🌞</div>
+            <div class="layer-content">
+              <h3>STRATOSPHERE</h3>
+              <p>12-50 km • The ozone layer!</p>
+              <div class="layer-meter">
+                <div class="meter-fill" style="width: 85%; background: #FFD700;"></div>
+              </div>
+              <p class="meter-label">UV Protection: 85%</p>
+            </div>
+          </div>
+
+          <div class="layer-card layer-3">
+            <div class="layer-emoji">⭐</div>
+            <div class="layer-content">
+              <h3>MESOSPHERE</h3>
+              <p>50-85 km • Meteor zone!</p>
+              <div class="layer-meter">
+                <div class="meter-fill" style="width: 15%; background: #FF6B6B;"></div>
+              </div>
+              <p class="meter-label">Meteor Activity: 15%</p>
+            </div>
+          </div>
+
+          <div class="layer-card layer-4">
+            <div class="layer-emoji">🛰️</div>
+            <div class="layer-content">
+              <h3>THERMOSPHERE</h3>
+              <p>85-600 km • Satellite city!</p>
+              <div class="layer-meter">
+                <div class="meter-fill" style="width: 90%; background: #45B7FF;"></div>
+              </div>
+              <p class="meter-label">Satellites: MANY!</p>
+            </div>
+          </div>
+
+          <div class="layer-card layer-5">
+            <div class="layer-emoji">🌌</div>
+            <div class="layer-content">
+              <h3>EXOSPHERE</h3>
+              <p>600+ km • Edge of space!</p>
+              <div class="layer-meter">
+                <div class="meter-fill" style="width: 99%; background: #2D3436;"></div>
+              </div>
+              <p class="meter-label">Emptiness: TOTAL!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: CREATURE TRACKER -->
+      <section class="creatures-section">
+        <h2 class="section-title">🦋 ANIMAL TRACKER 🦋</h2>
+
+        <div class="creature-cards">
+          <div class="creature-card card-butterfly">
+            <div class="creature-emoji">🦋</div>
+            <h3>Monarch Butterfly</h3>
+            <p class="creature-stat">Population: 450,000</p>
+            <p class="creature-location">📍 42.3°N, 93.0°W</p>
+            <div class="status-badge">🟢 FLYING!</div>
+            <canvas id="butterflyTrack" class="track-canvas" width="160" height="80"></canvas>
+          </div>
+
+          <div class="creature-card card-whale">
+            <div class="creature-emoji">🐋</div>
+            <h3>Gray Whale</h3>
+            <p class="creature-stat">Population: 12,000</p>
+            <p class="creature-location">📍 60.0°N, 165.0°W</p>
+            <div class="status-badge">🟢 SWIMMING!</div>
+            <canvas id="whaleTrack" class="track-canvas" width="160" height="80"></canvas>
+          </div>
+
+          <div class="creature-card card-elephant">
+            <div class="creature-emoji">🐘</div>
+            <h3>African Elephant</h3>
+            <p class="creature-stat">Population: 380,000</p>
+            <p class="creature-location">📍 2.5°S, 35.0°E</p>
+            <div class="status-badge">🟢 WALKING!</div>
+            <canvas id="elephantTrack" class="track-canvas" width="160" height="80"></canvas>
+          </div>
+
+          <div class="creature-card card-turtle">
+            <div class="creature-emoji">🐢</div>
+            <h3>Sea Turtle</h3>
+            <p class="creature-stat">Population: 1,000,000</p>
+            <p class="creature-location">📍 Tropical Seas</p>
+            <div class="status-badge">🟢 SWIMMING!</div>
+            <canvas id="turtleTrack" class="track-canvas" width="160" height="80"></canvas>
+          </div>
+
+          <div class="creature-card card-tern">
+            <div class="creature-emoji">🦅</div>
+            <h3>Arctic Tern</h3>
+            <p class="creature-stat">Population: 2,000,000</p>
+            <p class="creature-location">📍 Polar Regions</p>
+            <div class="status-badge">🟢 FLYING!</div>
+            <canvas id="ternTrack" class="track-canvas" width="160" height="80"></canvas>
+          </div>
+
+          <div class="creature-card card-salmon">
+            <div class="creature-emoji">🐟</div>
+            <h3>Salmon</h3>
+            <p class="creature-stat">Population: 5,000,000</p>
+            <p class="creature-location">📍 Northern Rivers</p>
+            <div class="status-badge">🟢 JUMPING!</div>
+            <canvas id="salmonTrack" class="track-canvas" width="160" height="80"></canvas>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- BOTTOM: SIGNAL & STATUS -->
+    <section class="signal-section">
+      <h2 class="section-title">📡 LIVE SIGNAL 📡</h2>
+      <div class="signal-display">
+        <div class="signal-meter-big">
+          <div class="signal-indicator" id="signalIndicator">
+            <div class="signal-wave"></div>
+            <div class="signal-wave"></div>
+            <div class="signal-wave"></div>
+          </div>
+          <p class="signal-label">BEEP BOOP!</p>
+        </div>
+
+        <div class="signal-stats">
+          <div class="stat-item">
+            <span class="stat-icon">📶</span>
+            <span>Signal Quality: <strong id="qualityDisplay">92%</strong></span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">📡</span>
+            <span>Frequency: <strong>137.1 MHz</strong></span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">🛰️</span>
+            <span>Altitude: <strong>800 km</strong></span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">⚡</span>
+            <span>Status: <strong class="live-badge">● LIVE</strong></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROLS -->
+    <section class="controls-section">
+      <h2 class="section-title">🎮 CONTROLS 🎮</h2>
+      <div class="control-buttons">
+        <button class="cartoon-button button-blue" id="rotateBtn">🔄 ROTATE EARTH</button>
+        <button class="cartoon-button button-green" id="zoomInBtn">🔍 ZOOM IN</button>
+        <button class="cartoon-button button-yellow" id="zoomOutBtn">🔍 ZOOM OUT</button>
+        <button class="cartoon-button button-red" id="refreshBtn">🔄 REFRESH</button>
+        <button class="cartoon-button button-purple" id="animateBtn">▶️ ANIMATE</button>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="cartoon-footer">
+      <div class="footer-content">
+        <p>🌍 Welcome to Earth Viewer! 🌍</p>
+        <p>Watch your planet's atmosphere, creatures, and signals in real-time!</p>
+        <div class="footer-stats">
+          <span>🦋 Creatures: TRACKED</span>
+          <span>🌫️ Atmosphere: SCANNING</span>
+          <span>📡 Signal: RECEIVING</span>
+          <span>🤖 AI: LEARNING</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/cartoon.js"></script>
+</body>
+</html>
