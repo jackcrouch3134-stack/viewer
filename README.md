@@ -42,7 +42,7 @@ The system is designed to simulate an autonomous Earth viewing and analysis plat
 - the user interface agent interprets interaction patterns and feedback
 - all three stay synchronized through a central coordinator
 
-## Run
+## Run locally
 
 1. Install Python dependencies:
 
@@ -61,6 +61,31 @@ python app.py
 ```text
 http://localhost:8000
 ```
+
+## Deploy to a public host
+
+This repo is designed to be hosted as a web app and then wrapped by the Android WebView shell for Google Play distribution.
+
+### Render deployment
+
+1. Push this repo to GitHub.
+2. Import the repo into Render.
+3. Use the included `render.yaml` config.
+4. Render will run:
+
+```bash
+gunicorn app:app --bind 0.0.0.0:$PORT
+```
+
+### Heroku-style Procfile
+
+The included `Procfile` also supports platforms that use `gunicorn` directly:
+
+```bash
+web: gunicorn app:app --bind 0.0.0.0:$PORT
+```
+
+After deployment, set the Android wrapper URL to the public HTTPS endpoint.
 
 ## API Endpoints
 
