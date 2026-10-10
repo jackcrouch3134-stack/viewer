@@ -14,7 +14,7 @@ app.config["JSON_SORT_KEYS"] = False
 state = {
     "compilations": 0,
     "updates": 0,
-    "version": "1.0.0",
+    "version": "2.0.0",
     "modules": {},
     "autonomy": {
         "challenge_severity": 0.35,
@@ -22,6 +22,12 @@ state = {
         "realism_weight": 0.72,
         "depth_weight": 0.7,
         "last_calibration": "",
+    },
+    "system": {
+        "name": "Earth-Aware Satellite Intelligence Platform",
+        "mode": "permanent-viewer",
+        "default_route": "/",
+        "status": "fully upgraded",
     },
 }
 lock = threading.Lock()
@@ -119,7 +125,13 @@ def api_modules():
 def api_state():
     with lock:
         return jsonify(
-            system_state={"status": "online", "autonomous_mode": True},
+            system_state={
+                "status": "online",
+                "autonomous_mode": True,
+                "name": state["system"]["name"],
+                "mode": state["system"]["mode"],
+                "default_route": state["system"]["default_route"],
+            },
             compiled_modules=len(state["modules"]),
             antenna_version=state["version"],
             total_compilations=state["compilations"],
@@ -148,8 +160,11 @@ def health_check():
             "status": "ok",
             "service": "viewer",
             "version": state["version"],
+            "name": state["system"]["name"],
+            "mode": state["system"]["mode"],
             "modules": len(state["modules"]),
             "autonomous_mode": True,
+            "upgrade_status": state["system"]["status"],
             "timestamp": datetime.utcnow().isoformat() + "Z",
         })
 

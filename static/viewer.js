@@ -6,28 +6,32 @@ class ImaginationViewer {
         title: 'Earth Core',
         summary: 'Planetary focus with global atmospheric continuity and live orbital awareness.',
         narrative: 'The system locks onto the living planet: oceanic motion, atmospheric rhythm, and tectonic pulse converge into a single coherent Earth-intent.',
-        membrane: ['rgba(116, 220, 255, 0.28)', 'rgba(126, 255, 217, 0.22)']
+        membrane: ['rgba(116, 220, 255, 0.28)', 'rgba(126, 255, 217, 0.22)'],
+        glow: '#7ad7ff'
       },
       {
         id: 'atmosphere-surge',
         title: 'Atmosphere Surge',
         summary: 'A layered atmospheric focus with cloud formation and thermal movement in motion.',
         narrative: 'The atmosphere rises into view as a living membrane, guiding the intelligence toward cloud, wind, and signal logic in continuous exchange.',
-        membrane: ['rgba(116, 255, 204, 0.26)', 'rgba(110, 176, 255, 0.22)']
+        membrane: ['rgba(116, 255, 204, 0.26)', 'rgba(110, 176, 255, 0.22)'],
+        glow: '#8cf7d5'
       },
       {
         id: 'biosphere-shift',
         title: 'Biosphere Shift',
         summary: 'Migration, habitat, and life-pattern awareness become the central attention field.',
         narrative: 'Intent drifts toward living systems, where species movement and environmental cues become the primary frame of meaning.',
-        membrane: ['rgba(137, 255, 168, 0.26)', 'rgba(97, 141, 255, 0.18)']
+        membrane: ['rgba(137, 255, 168, 0.26)', 'rgba(97, 141, 255, 0.18)'],
+        glow: '#93ffab'
       },
       {
         id: 'signal-echo',
         title: 'Signal Echo',
         summary: 'The imagery narrows to transmission fidelity, resonance, and directional clarity.',
         narrative: 'The channel becomes a listening surface, where signal strength and pattern recognition guide the imagination toward precise focus.',
-        membrane: ['rgba(171, 135, 255, 0.24)', 'rgba(110, 210, 255, 0.2)']
+        membrane: ['rgba(171, 135, 255, 0.24)', 'rgba(110, 210, 255, 0.2)'],
+        glow: '#b38cff'
       }
     ];
 
@@ -76,6 +80,7 @@ class ImaginationViewer {
     const focusNarrative = document.getElementById('focusNarrative');
     focusTitle.textContent = frame.title;
     focusNarrative.textContent = frame.narrative;
+    document.documentElement.style.setProperty('--active-glow', frame.glow);
   }
 
   toggleLayerDisplay() {
