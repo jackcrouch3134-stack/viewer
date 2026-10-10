@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify, request, send_from_directory
 from pathlib import Path
 from datetime import datetime
@@ -89,4 +90,6 @@ def api_state():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8000, debug=True)
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", "8000"))
+    app.run(host=host, port=port, debug=True)
