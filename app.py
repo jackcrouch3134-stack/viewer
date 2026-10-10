@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, abort, jsonify, request, send_from_directory
 from pathlib import Path
 from datetime import datetime
 import hashlib
@@ -55,9 +55,16 @@ def index():
     return send_from_directory(STATIC_DIR, "index.html")
 
 
+@app.route("/static/<path:name>")
+def static_assets(name):
+    return send_from_directory(STATIC_DIR, name)
+
+
 @app.route("/<path:name>")
 def root_assets(name):
     # lets pages use /style.css, /app.js, /cartoon.html etc.
+    if name.startswith("api/"):
+        abort(404)
     return send_from_directory(STATIC_DIR, name)
 
 
