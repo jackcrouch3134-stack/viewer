@@ -92,7 +92,7 @@ threading.Thread(target=auto_upgrade, daemon=True).start()
 
 @app.route("/")
 def index():
-    return send_from_directory(STATIC_DIR, "index.html")
+    return send_from_directory(STATIC_DIR, "viewer.html")
 
 
 @app.route("/<path:name>")

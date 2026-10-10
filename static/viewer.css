@@ -98,6 +98,46 @@ body {
   overflow: hidden;
 }
 
+.mini-screen-bracket {
+  position: absolute;
+  inset: 18px 18px auto auto;
+  width: 180px;
+  height: 180px;
+  pointer-events: none;
+}
+
+.mini-screen {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  background: rgba(8, 18, 24, 0.72);
+  border: 1px solid rgba(126, 205, 255, 0.38);
+  box-shadow: 0 0 14px rgba(114, 215, 255, 0.2);
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text);
+}
+
+.mini-screen--tl { top: 0; left: 0; }
+.mini-screen--tr { top: 0; right: 0; }
+.mini-screen--bl { bottom: 0; left: 0; }
+.mini-screen--br { bottom: 0; right: 0; }
+
+.mini-label {
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.mini-screen strong {
+  font-size: 0.8rem;
+}
+
 #earthCanvas {
   width: 100%;
   min-height: 420px;
