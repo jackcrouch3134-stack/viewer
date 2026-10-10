@@ -7,9 +7,16 @@ from ui_agent import ui_agent
 from agent_coordinator import AgentCoordinator
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
-app = Flask(__name__, static_folder=str(STATIC_DIR))
+app = Flask(__name__, static_folder=str(STATIC_DIR), template_folder=str(STATIC_DIR))
 
 coordinator = AgentCoordinator(backend_ai, frontend_ai, ui_agent)
+
+
+def api_error(message, status_code=400, details=None):
+    payload = {"status": "error", "error": message}
+    if details is not None:
+        payload["details"] = details
+    return jsonify(payload), status_code
 
 
 @app.route("/")
@@ -35,33 +42,70 @@ def api_state():
 
 @app.route("/api/compile", methods=["POST"])
 def api_compile():
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if data is None:
+        data = {}
+    if not isinstance(data, dict):
+        return api_error("Request body must be a JSON object.", 400)
+
     code = data.get("code", "")
-    result = coordinator.route_compile_request(code)
+    if not isinstance(code, str):
+        return api_error("Code must be a string.", 400)
+
+    try:
+        result = coordinator.route_compile_request(code)
+    except ValueError as exc:
+        return api_error(str(exc), 400)
+
     return jsonify({"status": "ok", "result": result})
 
 
 @app.route("/api/gesture", methods=["POST"])
 def api_gesture():
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if data is None:
+        data = {}
+    if not isinstance(data, dict):
+        return api_error("Request body must be a JSON object.", 400)
+
     gesture_type = data.get("type", "drag")
     payload = data.get("data", {})
+    if not isinstance(payload, dict):
+        return api_error("Gesture data must be an object.", 400)
+
     state = coordinator.route_gesture(gesture_type, payload)
     return jsonify({"status": "ok", "state": state})
 
 
 @app.route("/api/control", methods=["POST"])
 def api_control():
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if data is None:
+        data = {}
+    if not isinstance(data, dict):
+        return api_error("Request body must be a JSON object.", 400)
+
     control = data.get("control")
     value = data.get("value")
-    result = coordinator.route_slider_change(control, value)
+    if control is None:
+        return api_error("Control name is required.", 400)
+
+    try:
+        result = coordinator.route_slider_change(control, value)
+    except ValueError as exc:
+        return api_error(str(exc), 400)
+
     return jsonify({"status": "ok", "result": result})
 
 
 @app.route("/api/safety", methods=["POST"])
 def api_safety():
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if data is None:
+        data = {}
+    if not isinstance(data, dict):
+        return api_error("Request body must be a JSON object.", 400)
+
     safe_mode = bool(data.get("safe_mode", True))
     strict_mode = bool(data.get("strict_mode", False))
     result = coordinator.route_safety_toggle(safe_mode, strict_mode)
@@ -70,7 +114,12 @@ def api_safety():
 
 @app.route("/api/alert", methods=["POST"])
 def api_alert():
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if data is None:
+        data = {}
+    if not isinstance(data, dict):
+        return api_error("Request body must be a JSON object.", 400)
+
     title = data.get("title", "Alert")
     message = data.get("message", "")
     level = data.get("level", "info")
@@ -89,7 +138,8 @@ def api_health():
         "status": "healthy",
         "backend": backend_ai.status,
         "frontend": frontend_ai.status,
-        "ui": ui_agent.status
+        "ui": ui_agent.status,
+        "system_state": coordinator.get_unified_state()
     })
 
 

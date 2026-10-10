@@ -8,19 +8,33 @@ class UniversalViewerSystem {
   }
 
   setupEventListeners() {
-    document.getElementById("compileBtn").addEventListener("click", () => this.compileCode());
-    document.getElementById("analyzeBtn").addEventListener("click", () => this.analyzeAndCompile());
-    document.getElementById("interpretBtn").addEventListener("click", () => this.interpretAtmosphere());
+    const compileBtn = document.getElementById("compileBtn");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const interpretBtn = document.getElementById("interpretBtn");
+
+    compileBtn.addEventListener("click", () => this.compileCode());
+    analyzeBtn.addEventListener("click", () => this.analyzeAndCompile());
+    interpretBtn.addEventListener("click", () => this.interpretAtmosphere());
+  }
+
+  async fetchJson(url, options = {}) {
+    const response = await fetch(url, options);
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(payload.error || "Request failed");
+    }
+
+    return payload;
   }
 
   async updateStatus() {
     try {
-      const response = await fetch("/api/state");
-      const state = await response.json();
-
+      const state = await this.fetchJson("/api/state");
       const backend = state.backend || {};
       const frontend = state.frontend || {};
       const ui = state.ui || {};
+      const system = state.system || {};
 
       document.getElementById("compilationCount").textContent = backend.compilations || 0;
       document.getElementById("updateCount").textContent = backend.updates || 0;
@@ -28,45 +42,51 @@ class UniversalViewerSystem {
       document.getElementById("moduleCount").textContent = backend.modules_count || 0;
 
       document.getElementById("currentPanel").textContent = frontend.panel || "Earth";
-      document.getElementById("zoomLevel").textContent = `${(frontend.zoom || 1).toFixed(1)}x`;
+      document.getElementById("zoomLevel").textContent = `${Number(frontend.zoom || 1).toFixed(1)}x`;
       document.getElementById("signalQuality").textContent = `${frontend.signal_quality || 92}%`;
 
       document.getElementById("gestureCount").textContent = ui.gesture_history || 0;
       document.getElementById("alertCount").textContent = ui.pending_alerts || 0;
-      document.getElementById("feedbackCount").textContent = (ui.pending_alerts || 0) + (ui.gesture_history || 0);
+      document.getElementById("feedbackCount").textContent = ui.pending_alerts || 0;
       document.getElementById("safeMode").textContent = (frontend.safe_mode === true || ui.safe_mode === true) ? "ON" : "OFF";
 
-      document.getElementById("systemStatus").innerHTML = '<span class="pulse"></span> ONLINE';
+      const statusText = system.status || "ONLINE";
+      document.getElementById("systemStatus").innerHTML = `<span class="pulse"></span> ${statusText}`;
       document.getElementById("backendStatus").textContent = backend.status || "ONLINE";
       document.getElementById("frontendStatus").textContent = frontend.status || "ONLINE";
       document.getElementById("uiStatus").textContent = ui.status || "ONLINE";
     } catch (err) {
       console.error("Status update failed:", err);
+      document.getElementById("systemStatus").innerHTML = '<span class="pulse"></span> OFFLINE';
     }
   }
 
   async compileCode() {
-    const code = document.getElementById("codeInput").value || "# Sample code\nprint('Compiling')";
+    const codeInput = document.getElementById("codeInput");
+    const code = (codeInput.value || "").trim() || "# Sample code\nprint('Compiling')";
 
     try {
-      const response = await fetch("/api/compile", {
+      const result = await this.fetchJson("/api/compile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code })
       });
 
-      const result = await response.json();
-      const m = result.result || {};
-      document.getElementById("compilerStatus").textContent = `✓ Compiled Module ${m.module_id || 'unknown'} (v${m.version || '1.0.0'})`;
+      const module = result.result || {};
+      const moduleId = module.module_id || "unknown";
+      const version = module.version || "1.0.0";
+      document.getElementById("compilerStatus").textContent = `✓ Compiled Module ${moduleId} (v${version})`;
       this.updateStatus();
+      this.refreshModules();
     } catch (err) {
-      document.getElementById("compilerStatus").textContent = "✕ Compile failed";
+      console.error("Compile failed:", err);
+      document.getElementById("compilerStatus").textContent = `✕ ${err.message || "Compile failed"}`;
     }
   }
 
   async analyzeAndCompile() {
     const code = document.getElementById("codeInput").value;
-    if (!code) {
+    if (!code || !code.trim()) {
       document.getElementById("compilerStatus").textContent = "Please add code to analyze.";
       return;
     }
@@ -76,20 +96,26 @@ class UniversalViewerSystem {
 
   async interpretAtmosphere() {
     document.getElementById("atmosphereStatus").textContent = "Interpreting...";
-    setTimeout(() => {
+    try {
+      await this.fetchJson("/api/control", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ control: "panel", value: "Atmosphere" })
+      });
       document.getElementById("atmosphereStatus").textContent = "✓ Complete";
-    }, 800);
+    } catch (err) {
+      document.getElementById("atmosphereStatus").textContent = "✕ Interpretation failed";
+    }
   }
 
   async refreshModules() {
     try {
-      const response = await fetch("/api/state");
-      const state = await response.json();
+      const state = await this.fetchJson("/api/state");
       const backend = state.backend || {};
       const list = document.getElementById("recentModules");
       const modules = backend.modules || [];
 
-      if (!modules || modules.length === 0) {
+      if (!Array.isArray(modules) || modules.length === 0) {
         list.innerHTML = '<div class="activity-item">No compiled modules yet.</div>';
         return;
       }
@@ -97,9 +123,9 @@ class UniversalViewerSystem {
       list.innerHTML = modules.slice(0, 5).map((m) => `
         <div class="activity-item">
           <span class="dot"></span>
-          ${m.intent || 'unknown'} • v${m.version || '1.0.0'} • ${m.module_id || 'n/a'}
+          ${m.intent || "unknown"} • v${m.version || "1.0.0"} • ${m.module_id || "n/a"}
         </div>
-      `).join('');
+      `).join("");
     } catch (err) {
       console.error("Module refresh failed:", err);
     }

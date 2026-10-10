@@ -5,24 +5,32 @@ class UIAgent:
         self.feedback_queue = []
         self.safe_mode = True
         self.status = "ONLINE"
+        self.last_gesture = "idle"
 
     def handle_gesture(self, gesture_type, data):
         """Process user gesture."""
+        if not isinstance(data, dict):
+            data = {}
         self.gesture_history += 1
+        self.last_gesture = str(gesture_type or "gesture").strip() or "gesture"
         return {
-            "gesture": gesture_type,
+            "gesture": self.last_gesture,
             "count": self.gesture_history,
-            "data": data
+            "data": data,
+            "status": "processed"
         }
 
     def show_alert(self, title, message, level="info"):
         """Create an alert notification."""
+        title_text = str(title or "Alert").strip() or "Alert"
+        message_text = str(message or "").strip()
+        level_text = str(level or "info").strip() or "info"
         self.pending_alerts += 1
         alert = {
             "id": self.pending_alerts,
-            "title": title,
-            "message": message,
-            "level": level
+            "title": title_text,
+            "message": message_text,
+            "level": level_text
         }
         self.feedback_queue.append(alert)
         return alert
@@ -31,7 +39,7 @@ class UIAgent:
         """Get and clear pending feedback."""
         feedback = self.feedback_queue.copy()
         self.feedback_queue.clear()
-        return {"feedback": feedback, "count": len(feedback)}
+        return {"feedback": feedback, "count": len(feedback), "pending_alerts": self.pending_alerts}
 
     def get_state(self):
         """Return UI agent state."""
@@ -39,7 +47,8 @@ class UIAgent:
             "status": self.status,
             "gesture_history": self.gesture_history,
             "pending_alerts": self.pending_alerts,
-            "safe_mode": self.safe_mode
+            "safe_mode": self.safe_mode,
+            "last_gesture": self.last_gesture
         }
 
 

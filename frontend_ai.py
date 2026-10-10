@@ -6,21 +6,30 @@ class FrontendAI:
         self.safe_mode = True
         self.status = "ONLINE"
         self.theme = "Cartoon"
+        self.last_action = "ready"
 
     def set_panel(self, panel_name):
         """Switch active panel."""
-        self.panel = panel_name
-        return {"panel": self.panel}
+        normalized = str(panel_name or "Earth").strip() or "Earth"
+        self.panel = normalized
+        self.last_action = "panel_change"
+        return {"panel": self.panel, "status": "updated"}
 
     def set_zoom(self, zoom_level):
         """Adjust zoom level."""
-        self.zoom = max(0.5, min(zoom_level, 3.0))
-        return {"zoom": self.zoom}
+        try:
+            zoom_value = float(zoom_level)
+        except (TypeError, ValueError):
+            return {"zoom": self.zoom, "status": "error", "error": "invalid zoom value"}
+        self.zoom = max(0.5, min(zoom_value, 3.0))
+        self.last_action = "zoom_change"
+        return {"zoom": self.zoom, "status": "updated"}
 
     def toggle_safe_mode(self, enabled):
         """Toggle safe mode."""
-        self.safe_mode = enabled
-        return {"safe_mode": self.safe_mode}
+        self.safe_mode = bool(enabled)
+        self.last_action = "safe_mode_toggle"
+        return {"safe_mode": self.safe_mode, "status": "updated"}
 
     def get_state(self):
         """Return frontend AI state."""
@@ -30,7 +39,8 @@ class FrontendAI:
             "zoom": self.zoom,
             "signal_quality": self.signal_quality,
             "safe_mode": self.safe_mode,
-            "theme": self.theme
+            "theme": self.theme,
+            "last_action": self.last_action
         }
 
 
