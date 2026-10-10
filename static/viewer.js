@@ -5,25 +5,29 @@ class ImaginationViewer {
         id: 'earth-core',
         title: 'Earth Core',
         summary: 'Planetary focus with global atmospheric continuity and live orbital awareness.',
-        narrative: 'The system locks onto the living planet: oceanic motion, atmospheric rhythm, and tectonic pulse converge into a single coherent Earth-intent.'
+        narrative: 'The system locks onto the living planet: oceanic motion, atmospheric rhythm, and tectonic pulse converge into a single coherent Earth-intent.',
+        membrane: ['rgba(116, 220, 255, 0.28)', 'rgba(126, 255, 217, 0.22)']
       },
       {
         id: 'atmosphere-surge',
         title: 'Atmosphere Surge',
         summary: 'A layered atmospheric focus with cloud formation and thermal movement in motion.',
-        narrative: 'The atmosphere rises into view as a living membrane, guiding the intelligence toward cloud, wind, and signal logic in continuous exchange.'
+        narrative: 'The atmosphere rises into view as a living membrane, guiding the intelligence toward cloud, wind, and signal logic in continuous exchange.',
+        membrane: ['rgba(116, 255, 204, 0.26)', 'rgba(110, 176, 255, 0.22)']
       },
       {
         id: 'biosphere-shift',
         title: 'Biosphere Shift',
         summary: 'Migration, habitat, and life-pattern awareness become the central attention field.',
-        narrative: 'Intent drifts toward living systems, where species movement and environmental cues become the primary frame of meaning.'
+        narrative: 'Intent drifts toward living systems, where species movement and environmental cues become the primary frame of meaning.',
+        membrane: ['rgba(137, 255, 168, 0.26)', 'rgba(97, 141, 255, 0.18)']
       },
       {
         id: 'signal-echo',
         title: 'Signal Echo',
         summary: 'The imagery narrows to transmission fidelity, resonance, and directional clarity.',
-        narrative: 'The channel becomes a listening surface, where signal strength and pattern recognition guide the imagination toward precise focus.'
+        narrative: 'The channel becomes a listening surface, where signal strength and pattern recognition guide the imagination toward precise focus.',
+        membrane: ['rgba(171, 135, 255, 0.24)', 'rgba(110, 210, 255, 0.2)']
       }
     ];
 
@@ -31,6 +35,7 @@ class ImaginationViewer {
     this.canvas = document.getElementById('earthCanvas');
     this.ctx = this.canvas.getContext('2d');
     this.rotation = 0;
+    this.membranePulse = 0;
 
     this.bindUI();
     this.renderFrameBank();
@@ -97,6 +102,8 @@ class ImaginationViewer {
     const ctx = this.ctx;
     const { width, height } = this.canvas;
     const scale = Number(this.canvas.dataset.scale || '1');
+    const frame = this.frames[this.activeFrameIndex];
+    const pulse = 0.5 + Math.sin(this.membranePulse) * 0.5;
 
     ctx.clearRect(0, 0, width, height);
 
@@ -116,26 +123,40 @@ class ImaginationViewer {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
+    const membraneGlow = ctx.createRadialGradient(
+      width * 0.5,
+      height * 0.5,
+      50,
+      width * 0.5,
+      height * 0.5,
+      width * 0.7
+    );
+    membraneGlow.addColorStop(0, frame.membrane[0]);
+    membraneGlow.addColorStop(0.58, frame.membrane[1]);
+    membraneGlow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = membraneGlow;
+    ctx.fillRect(0, 0, width, height);
+
     const cx = width / 2;
     const cy = height / 2;
-    const radius = Math.min(width, height) * 0.28 * scale;
+    const radius = Math.min(width, height) * (0.28 + pulse * 0.03) * scale;
 
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(this.rotation);
 
     ctx.beginPath();
-    ctx.fillStyle = '#63d6ff';
+    ctx.fillStyle = 'rgba(96, 208, 255, 0.82)';
     ctx.arc(0, 0, radius, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.beginPath();
-    ctx.fillStyle = 'rgba(34, 154, 92, 0.9)';
+    ctx.fillStyle = 'rgba(34, 154, 92, 0.92)';
     ctx.arc(0, 0, radius * 0.9, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.beginPath();
-    ctx.fillStyle = 'rgba(25, 118, 161, 0.7)';
+    ctx.fillStyle = 'rgba(33, 119, 161, 0.74)';
     ctx.arc(0, 0, radius * 0.73, 0, Math.PI * 2);
     ctx.fill();
 
@@ -150,8 +171,7 @@ class ImaginationViewer {
 
     ctx.restore();
 
-    const currentFrame = this.frames[this.activeFrameIndex];
-    const frameText = currentFrame.title.toUpperCase();
+    const frameText = frame.title.toUpperCase();
     ctx.fillStyle = 'rgba(255,255,255,0.8)';
     ctx.font = '600 20px Arial';
     ctx.textAlign = 'center';
@@ -167,6 +187,8 @@ class ImaginationViewer {
 
   startLoop() {
     setInterval(() => {
+      this.membranePulse += 0.15;
+      this.drawEarth();
       this.advanceFocus();
     }, 5000);
   }
