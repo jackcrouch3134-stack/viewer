@@ -14,6 +14,10 @@ A unified Earth observation and autonomous intelligence platform.
 
 This project is a small Flask-based web app package for the viewer experience, with mobile-friendly PWA support.
 
+### Primary master entry
+
+The permanent app entry is `master_app.py`. `app.py` remains a compatibility wrapper that imports the master app so the root viewer experience stays fixed and cannot drift to an alternate dashboard.
+
 ### Run locally
 
 ```bash
@@ -21,6 +25,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
+# or: python master_app.py
 ```
 
 Open http://localhost:8000
