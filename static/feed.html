@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Feed</title>
+  <style>
+    :root {
+      --bg-1: #07151d;
+      --bg-2: #0d2437;
+      --panel: rgba(11, 25, 35, 0.95);
+      --border: rgba(95, 228, 255, 0.35);
+      --text: #ebfaff;
+      --muted: #a9cfdd;
+      --cyan: #6ce5ff;
+      --green: #7ef0bd;
+      --pink: #ff93d4;
+      --amber: #ffc857;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, rgba(92, 162, 201, 0.24), transparent 36%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: clamp(1.7rem, 3vw, 2.8rem);
+    }
+
+    .nav {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav a, .btn {
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      color: var(--text);
+      padding: 10px 14px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .feed-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(12, 25, 35, 0.96), rgba(9, 17, 24, 0.94));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 18px 38px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: var(--cyan);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .feed-stream {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 500px;
+    }
+
+    .feed-item {
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .feed-item-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: var(--muted);
+    }
+
+    .level {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 700;
+    }
+
+    .level.info { background: rgba(108, 229, 255, 0.1); border-color: rgba(108, 229, 255, 0.3); color: var(--cyan); }
+    .level.success { background: rgba(126, 240, 189, 0.1); border-color: rgba(126, 240, 189, 0.3); color: var(--green); }
+    .level.warning { background: rgba(255, 200, 87, 0.1); border-color: rgba(255, 200, 87, 0.4); color: var(--amber); }
+    .level.error { background: rgba(255, 147, 212, 0.1); border-color: rgba(255, 147, 212, 0.35); color: var(--pink); }
+
+    .feed-item h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.05rem;
+    }
+
+    .feed-item p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .side-panel {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .status-card {
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 14px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .status-card h3 {
+      margin: 0 0 10px 0;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.72rem;
+    }
+
+    .signal {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .pulse {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 14px var(--green);
+      animation: pulse 1.4s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.5); opacity: 0.6; }
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(4, 14, 20, 0.9);
+      color: var(--text);
+      padding: 12px 14px;
+      resize: vertical;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), #8ae2ff);
+      color: #06131d;
+      border-color: transparent;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .feed-layout { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <h1>Live Feed</h1>
+      <nav class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/feed">Live Feed</a>
+      </nav>
+    </div>
+
+    <div class="feed-layout">
+      <section class="panel">
+        <div class="panel-header">Observation Feed</div>
+        <div id="feedStream" class="feed-stream"></div>
+      </section>
+
+      <aside class="panel side-panel">
+        <div class="status-card">
+          <h3>System Signal</h3>
+          <div class="signal"><span class="pulse"></span><strong id="signalState">Listening</strong></div>
+          <div class="muted">The feed is actively collecting imagery, telemetry, and system updates.</div>
+        </div>
+
+        <div class="status-card">
+          <h3>Push Feed Event</h3>
+          <textarea id="feedMessage" placeholder="Message to the live feed...">Satellite imagery refreshed.</textarea>
+          <div class="controls">
+            <button class="btn btn-primary" id="sendFeedBtn">Send Event</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const feedStream = document.getElementById('feedStream');
+    const feedMessage = document.getElementById('feedMessage');
+    const signalState = document.getElementById('signalState');
+
+    function renderFeed(items) {
+      if (!items || items.length === 0) {
+        feedStream.innerHTML = '<div class="feed-item"><h3>No feed events yet</h3><p>Waiting for the system to report sensor data.</p></div>';
+        return;
+      }
+
+      feedStream.innerHTML = items.map(item => `
+        <article class="feed-item">
+          <div class="feed-item-header">
+            <span>${item.source || 'system'}</span>
+            <span class="level ${item.level || 'info'}">${(item.level || 'info').toUpperCase()}</span>
+          </div>
+          <h3>${item.title || 'Live update'}</h3>
+          <p>${item.message || 'Awaiting update.'}</p>
+          <div class="muted" style="margin-top: 8px;">${item.timestamp || ''}</div>
+        </article>
+      `).join('');
+    }
+
+    async function loadFeed() {
+      try {
+        const response = await fetch('/api/feed');
+        const data = await response.json();
+        renderFeed(data.feed || []);
+        signalState.textContent = data.feed && data.feed.length ? 'Listening' : 'Idle';
+      } catch (err) {
+        console.error('Feed load failed', err);
+      }
+    }
+
+    async function pushFeed() {
+      const message = feedMessage.value.trim();
+      if (!message) return;
+
+      try {
+        const response = await fetch('/api/feed', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            source: 'user',
+            title: 'Manual feed update',
+            message,
+            level: 'info',
+            payload: { channel: 'live-feed' }
+          })
+        });
+        if (response.ok) {
+          feedMessage.value = '';
+          await loadFeed();
+        }
+      } catch (err) {
+        console.error('Feed push failed', err);
+      }
+    }
+
+    document.getElementById('sendFeedBtn').addEventListener('click', pushFeed);
+    loadFeed();
+    setInterval(loadFeed, 3000);
+  </script>
+</body>
+</html>

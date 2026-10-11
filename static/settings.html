@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Settings</title>
+  <style>
+    :root {
+      --bg-1: #07141a;
+      --bg-2: #0c2432;
+      --panel: rgba(11, 25, 35, 0.94);
+      --border: rgba(95, 228, 255, 0.35);
+      --text: #ebfaff;
+      --muted: #afccdb;
+      --cyan: #6ce5ff;
+      --green: #7ef0bd;
+      --pink: #ff93d4;
+      --amber: #ffc857;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, rgba(72, 140, 184, 0.3), transparent 34%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(12, 25, 35, 0.96), rgba(8, 17, 24, 0.95));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 18px 38px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      font-size: 0.74rem;
+    }
+
+    .panel-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.02);
+      padding: 12px 14px;
+    }
+
+    .setting-row label {
+      color: var(--text);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .toggle {
+      position: relative;
+      width: 54px;
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      cursor: pointer;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--text);
+      transition: transform 0.2s ease;
+    }
+
+    .toggle.active {
+      background: rgba(126, 240, 189, 0.18);
+      border-color: rgba(126, 240, 189, 0.38);
+    }
+
+    .toggle.active::after {
+      transform: translateX(24px);
+      background: var(--green);
+    }
+
+    .status-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      padding: 12px 14px;
+      color: var(--muted);
+    }
+
+    .status-item strong {
+      color: var(--text);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), #9ceaff);
+      color: #06131d;
+    }
+
+    @media (max-width: 900px) {
+      .settings-grid { grid-template-columns: 1fr; }
+      .header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>System Settings</h1>
+      <nav class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/feed">Live Feed</a>
+        <a href="/settings">Settings</a>
+      </nav>
+    </header>
+
+    <div class="settings-grid">
+      <section class="panel">
+        <div class="panel-header">Main Settings</div>
+        <div class="panel-body">
+          <div class="setting-row">
+            <label>Autonomous Mode</label>
+            <button class="toggle active" data-setting="autonomous_mode" aria-label="Toggle autonomous mode"></button>
+          </div>
+          <div class="setting-row">
+            <label>Live Feed</label>
+            <button class="toggle active" data-setting="live_feed" aria-label="Toggle live feed"></button>
+          </div>
+          <div class="setting-row">
+            <label>Safe Mode</label>
+            <button class="toggle active" data-setting="safe_mode" aria-label="Toggle safe mode"></button>
+          </div>
+          <div class="setting-row">
+            <label>Auto Updates</label>
+            <button class="toggle active" data-setting="auto_updates" aria-label="Toggle auto updates"></button>
+          </div>
+          <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">Status Overview</div>
+        <div class="panel-body status-list">
+          <div class="status-item"><span>System</span><strong id="systemStatus">ONLINE</strong></div>
+          <div class="status-item"><span>Backend</span><strong id="backendStatus">ONLINE</strong></div>
+          <div class="status-item"><span>Frontend</span><strong id="frontendStatus">ONLINE</strong></div>
+          <div class="status-item"><span>Signal Quality</span><strong id="signalStatus">92%</strong></div>
+          <div class="status-item"><span>Feed</span><strong id="feedStatus">ACTIVE</strong></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const settings = {
+      autonomous_mode: true,
+      live_feed: true,
+      safe_mode: true,
+      auto_updates: true
+    };
+
+    function renderToggles() {
+      document.querySelectorAll('.toggle').forEach((btn) => {
+        const key = btn.dataset.setting;
+        btn.classList.toggle('active', !!settings[key]);
+      });
+    }
+
+    document.querySelectorAll('.toggle').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.setting;
+        settings[key] = !settings[key];
+        renderToggles();
+      });
+    });
+
+    document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/safety', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            safe_mode: settings.safe_mode,
+            strict_mode: settings.auto_updates
+          })
+        });
+        const data = await response.json();
+        document.getElementById('systemStatus').textContent = data.result && data.result.safe_mode ? 'ONLINE' : 'STANDBY';
+        document.getElementById('feedStatus').textContent = settings.live_feed ? 'ACTIVE' : 'PAUSED';
+      } catch (err) {
+        console.error('Settings save failed', err);
+      }
+    });
+
+    async function loadStatus() {
+      try {
+        const response = await fetch('/api/state');
+        const data = await response.json();
+        const system = data.system_state || {};
+        const signal = data.known_numbers && data.known_numbers.signal_quality ? `${data.known_numbers.signal_quality}%` : '92%';
+        document.getElementById('systemStatus').textContent = system.status ? system.status.toUpperCase() : 'ONLINE';
+        document.getElementById('backendStatus').textContent = 'ONLINE';
+        document.getElementById('frontendStatus').textContent = 'ONLINE';
+        document.getElementById('signalStatus').textContent = signal;
+        document.getElementById('feedStatus').textContent = settings.live_feed ? 'ACTIVE' : 'PAUSED';
+      } catch (err) {
+        console.error('Status load failed', err);
+      }
+    }
+
+    renderToggles();
+    loadStatus();
+  </script>
+</body>
+</html>
