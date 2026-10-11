@@ -4,7 +4,34 @@ class UniversalViewerSystem {
     this.modules = [];
     this.refreshInterval = 2000;
     this.setupEventListeners();
+    this.setupAvatarMotion();
     this.startAutoRefresh();
+  }
+
+  setupAvatarMotion() {
+    const avatar = document.querySelector('.mythic-avatar');
+    const stage = document.querySelector('.avatar-stage');
+    if (!avatar || !stage) return;
+
+    const blink = () => {
+      avatar.classList.remove('blink');
+      void avatar.offsetWidth;
+      avatar.classList.add('blink');
+      setTimeout(() => avatar.classList.remove('blink'), 180);
+    };
+
+    setInterval(blink, 3000 + Math.random() * 2000);
+
+    stage.addEventListener('pointermove', (event) => {
+      const rect = stage.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - 0.5;
+      const y = (event.clientY - rect.top) / rect.height - 0.5;
+      avatar.style.transform = `translateY(8px) rotateX(${(-y * 12).toFixed(2)}deg) rotateY(${(x * 18).toFixed(2)}deg)`;
+    });
+
+    stage.addEventListener('pointerleave', () => {
+      avatar.style.transform = '';
+    });
   }
 
   setupEventListeners() {
