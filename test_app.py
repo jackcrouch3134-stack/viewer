@@ -39,3 +39,22 @@ def test_dashboard_state_includes_agent_payloads():
     assert payload["backend"]["status"] == "ONLINE"
     assert payload["frontend"]["status"] == "ONLINE"
     assert payload["ui"]["status"] == "ONLINE"
+
+
+def test_external_inputs_are_validated_and_reflected():
+    client = app.test_client()
+
+    assert client.post("/api/control", json={"control": "zoom", "value": "x"}).status_code == 400
+    assert client.post("/api/control", json={"control": "bogus", "value": 1}).status_code == 400
+    assert client.post("/api/safety", json={"safe_mode": "maybe"}).status_code == 400
+    assert client.post("/api/compile", json={"code": 5}).status_code == 400
+    assert client.post("/api/alert", json={"level": "nope"}).status_code == 400
+    assert client.post("/api/gesture", json={"type": 3}).status_code == 400
+
+    response = client.post("/api/control", json={"control": "zoom", "value": 99})
+    assert response.status_code == 200
+    assert response.get_json()["frontend"]["zoom"] == 3.0
+
+    response = client.post("/api/safety", json={"safe_mode": "false"})
+    assert response.get_json()["frontend"]["safe_mode"] is False
+    assert response.get_json()["ui"]["safe_mode"] is False
