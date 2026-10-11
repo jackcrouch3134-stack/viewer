@@ -1,4 +1,4 @@
-# 🌍 Universal Earth Viewing System
+# Alpha/Omega
 
 A unified Earth observation and autonomous intelligence dashboard built around three cooperative AI agents:
 
