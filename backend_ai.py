@@ -26,7 +26,7 @@ class BackendAI:
             "updates": self.updates,
             "version": self.version,
             "modules_count": len(self.modules),
-            "modules": self.modules[:5]
+            "modules": self.modules[-5:]
         }
 
 

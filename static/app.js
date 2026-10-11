@@ -33,7 +33,7 @@ class UniversalViewerSystem {
 
       document.getElementById("gestureCount").textContent = ui.gesture_history || 0;
       document.getElementById("alertCount").textContent = ui.pending_alerts || 0;
-      document.getElementById("feedbackCount").textContent = (ui.pending_alerts || 0) + (ui.gesture_history || 0);
+      document.getElementById("feedbackCount").textContent = ui.feedback_count || 0;
       document.getElementById("safeMode").textContent = (frontend.safe_mode === true || ui.safe_mode === true) ? "ON" : "OFF";
 
       document.getElementById("systemStatus").innerHTML = '<span class="pulse"></span> ONLINE';

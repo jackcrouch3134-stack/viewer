@@ -4,6 +4,7 @@ class UIAgent:
         self.pending_alerts = 0
         self.feedback_queue = []
         self.safe_mode = True
+        self.strict_mode = False
         self.status = "ONLINE"
 
     def handle_gesture(self, gesture_type, data):
@@ -31,6 +32,7 @@ class UIAgent:
         """Get and clear pending feedback."""
         feedback = self.feedback_queue.copy()
         self.feedback_queue.clear()
+        self.pending_alerts -= len(feedback)
         return {"feedback": feedback, "count": len(feedback)}
 
     def get_state(self):
@@ -39,7 +41,9 @@ class UIAgent:
             "status": self.status,
             "gesture_history": self.gesture_history,
             "pending_alerts": self.pending_alerts,
-            "safe_mode": self.safe_mode
+            "feedback_count": len(self.feedback_queue),
+            "safe_mode": self.safe_mode,
+            "strict_mode": self.strict_mode,
         }
 
 
