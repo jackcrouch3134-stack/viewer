@@ -25,3 +25,17 @@ def test_api_routes_still_work():
     health = client.get("/api/health")
     assert health.status_code == 200
     assert health.get_json()["status"] == "healthy"
+
+
+def test_dashboard_state_includes_agent_payloads():
+    client = app.test_client()
+
+    response = client.get("/api/state")
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert "backend" in payload
+    assert "frontend" in payload
+    assert "ui" in payload
+    assert payload["backend"]["status"] == "ONLINE"
+    assert payload["frontend"]["status"] == "ONLINE"
+    assert payload["ui"]["status"] == "ONLINE"

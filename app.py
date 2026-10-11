@@ -57,6 +57,34 @@ def auto_upgrade():
 threading.Thread(target=auto_upgrade, daemon=True).start()
 
 
+def build_agent_snapshot():
+    unified = coordinator.get_unified_state()
+    backend = unified.get("backend", {})
+    frontend = unified.get("frontend", {})
+    ui = unified.get("ui", {})
+    return {
+        "backend": backend,
+        "frontend": frontend,
+        "ui": ui,
+    }
+
+
+def build_deprecated_state_payload():
+    snapshot = build_agent_snapshot()
+    with lock:
+        compiled_modules = len(state["modules"])
+        payload = {
+            "system_state": {"status": "online", "autonomous_mode": True},
+            "compiled_modules": compiled_modules,
+            "antenna_version": state["version"],
+            "total_compilations": state["compilations"],
+            "total_updates": state["updates"],
+            "last_activity": datetime.utcnow().isoformat() + "Z",
+        }
+    payload.update(snapshot)
+    return payload
+
+
 @app.route("/")
 def index():
     return send_from_directory(STATIC_DIR, "index.html")
@@ -78,15 +106,7 @@ def root_static_files(filename):
 @app.route("/api/state")
 @app.route("/api/compiler/state")
 def api_state():
-    with lock:
-        payload = {
-            "system_state": {"status": "online", "autonomous_mode": True},
-            "compiled_modules": len(state["modules"]),
-            "antenna_version": state["version"],
-            "total_compilations": state["compilations"],
-            "total_updates": state["updates"],
-            "last_activity": datetime.utcnow().isoformat() + "Z",
-        }
+    payload = build_deprecated_state_payload()
     return jsonify(payload)
 
 
@@ -104,6 +124,8 @@ def api_compile():
         "optimizations": legacy["optimizations"],
         "reorganizations": 0,
         "result": result,
+        "backend": backend_ai.get_state(),
+        "ui": ui_agent.get_state(),
     })
 
 
@@ -118,8 +140,12 @@ def api_gesture():
     data = request.get_json(silent=True) or {}
     gesture_type = data.get("type", "drag")
     payload = data.get("data", {})
-    state = coordinator.route_gesture(gesture_type, payload)
-    return jsonify({"status": "ok", "state": state})
+    state_result = coordinator.route_gesture(gesture_type, payload)
+    return jsonify({
+        "status": "ok",
+        "state": state_result,
+        "ui": ui_agent.get_state(),
+    })
 
 
 @app.route("/api/control", methods=["POST"])
@@ -128,7 +154,11 @@ def api_control():
     control = data.get("control")
     value = data.get("value")
     result = coordinator.route_slider_change(control, value)
-    return jsonify({"status": "ok", "result": result})
+    return jsonify({
+        "status": "ok",
+        "result": result,
+        "frontend": frontend_ai.get_state(),
+    })
 
 
 @app.route("/api/safety", methods=["POST"])
@@ -137,7 +167,12 @@ def api_safety():
     safe_mode = bool(data.get("safe_mode", True))
     strict_mode = bool(data.get("strict_mode", False))
     result = coordinator.route_safety_toggle(safe_mode, strict_mode)
-    return jsonify({"status": "ok", "result": result})
+    return jsonify({
+        "status": "ok",
+        "result": result,
+        "frontend": frontend_ai.get_state(),
+        "ui": ui_agent.get_state(),
+    })
 
 
 @app.route("/api/alert", methods=["POST"])
@@ -147,12 +182,12 @@ def api_alert():
     message = data.get("message", "")
     level = data.get("level", "info")
     alert = ui_agent.show_alert(title, message, level)
-    return jsonify({"status": "ok", "alert": alert})
+    return jsonify({"status": "ok", "alert": alert, "ui": ui_agent.get_state()})
 
 
 @app.route("/api/feedback")
 def api_feedback():
-    return jsonify(ui_agent.get_pending_feedback())
+    return jsonify({**ui_agent.get_pending_feedback(), "ui": ui_agent.get_state()})
 
 
 @app.route("/api/health")
@@ -167,3 +202,4 @@ def api_health():
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8000, debug=True)
+
