@@ -33,6 +33,127 @@ body {
   padding: 24px;
 }
 
+.public-hero {
+  display: grid;
+  grid-template-columns: 1.5fr 0.8fr;
+  gap: 24px;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(11, 24, 34, 0.95), rgba(7, 17, 25, 0.88));
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
+}
+
+.eyebrow {
+  display: inline-block;
+  color: var(--cyan);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.hero-copy h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 4vw, 4.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.hero-copy p {
+  color: var(--muted);
+  font-size: 1.04rem;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 18px 0 0;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.primary-link,
+.secondary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 13px 22px;
+  font-weight: 700;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.primary-link {
+  background: linear-gradient(135deg, var(--cyan), #8fe8ff);
+  color: #06131d;
+}
+
+.secondary-link {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.primary-link:hover,
+.secondary-link:hover {
+  transform: translateY(-1px);
+  opacity: 0.96;
+}
+
+.hero-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  color: var(--muted);
+}
+
+.hero-points li::before {
+  content: "✓";
+  color: var(--green);
+  margin-right: 8px;
+}
+
+.hero-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.mini-panel {
+  background: rgba(12, 23, 32, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mini-panel.highlight {
+  border-color: rgba(95, 228, 255, 0.42);
+  box-shadow: 0 0 20px rgba(95, 228, 255, 0.12);
+}
+
+.mini-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero-panel strong {
+  font-size: 1.1rem;
+}
+
 .header {
   display: flex;
   align-items: center;
