@@ -15,9 +15,38 @@ from ui_agent import ui_agent
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 app = Flask(__name__, static_folder=str(STATIC_DIR))
 
-state = {"compilations": 0, "updates": 0, "version": "1.0.0", "modules": {}}
+state = {
+    "compilations": 0,
+    "updates": 0,
+    "version": "1.0.0",
+    "modules": {},
+    "feed": [{
+        "id": 1,
+        "source": "system",
+        "title": "Observation feed active",
+        "message": "All sensors are listening for new imagery and telemetry.",
+        "level": "info",
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+    }],
+}
 lock = threading.Lock()
 coordinator = AgentCoordinator(backend_ai, frontend_ai, ui_agent)
+
+
+def push_feed_event(source, title, message, level="info", payload=None):
+    """Add a feed event to the live stream state."""
+    with lock:
+        event = {
+            "id": len(state["feed"]) + 1,
+            "source": source,
+            "title": title,
+            "message": message,
+            "level": level,
+            "payload": payload or {},
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+        }
+        state["feed"] = [event] + state["feed"][:19]
+        return event
 
 
 def intent_of(code):
@@ -163,6 +192,29 @@ def api_health():
         "frontend": frontend_ai.status,
         "ui": ui_agent.status,
     })
+
+
+@app.route("/api/feed")
+def api_feed():
+    with lock:
+        return jsonify({"feed": state["feed"]})
+
+
+@app.route("/api/feed", methods=["POST"])
+def api_feed_post():
+    data = request.get_json(silent=True) or {}
+    source = data.get("source", "system")
+    title = data.get("title", "Live feed update")
+    message = data.get("message", "New feed event received.")
+    level = data.get("level", "info")
+    payload = data.get("payload", {})
+    event = push_feed_event(source, title, message, level=level, payload=payload)
+    return jsonify({"status": "ok", "event": event})
+
+
+@app.route("/feed")
+def live_feed_page():
+    return send_from_directory(STATIC_DIR, "feed.html")
 
 
 if __name__ == "__main__":
