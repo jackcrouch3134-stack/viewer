@@ -114,6 +114,7 @@ def api_state():
             "antenna_version": state["version"],
             "total_compilations": state["compilations"],
             "total_updates": state["updates"],
+            "known_numbers": coordinator.get_unified_state()["known_numbers"],
             "last_activity": datetime.utcnow().isoformat() + "Z",
         }
     return jsonify(payload)

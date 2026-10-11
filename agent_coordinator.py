@@ -11,11 +11,21 @@ class AgentCoordinator:
 
     def get_unified_state(self):
         """Return combined state from all three agents."""
+        backend_state = self.backend.get_state()
+        frontend_state = self.frontend.get_state()
         return {
-            "backend": self.backend.get_state(),
-            "frontend": self.frontend.get_state(),
+            "backend": backend_state,
+            "frontend": frontend_state,
             "ui": self.ui.get_state(),
-            "timestamp": self.get_timestamp()
+            "timestamp": self.get_timestamp(),
+            "known_numbers": {
+                "signal_quality": self.backend.pull_known_number("signal_quality", 92),
+                "altitude": self.backend.pull_known_number("altitude", 800),
+                "temperature": self.backend.pull_known_number("temperature", 18),
+                "humidity": self.backend.pull_known_number("humidity", 52),
+                "power": self.backend.pull_known_number("power", 80),
+                "coverage": self.backend.pull_known_number("coverage", 85),
+            },
         }
 
     def route_compile_request(self, code):
