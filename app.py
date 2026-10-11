@@ -218,5 +218,10 @@ def live_feed_page():
     return send_from_directory(STATIC_DIR, "feed.html")
 
 
+@app.route("/settings")
+def settings_page():
+    return send_from_directory(STATIC_DIR, "settings.html")
+
+
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8000, debug=True)
