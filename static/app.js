@@ -11,8 +11,17 @@ class UniversalViewerSystem {
       smoothing: 0.12,
       maxShift: 22,
     };
+    this.awarenessQuestions = [
+      "Is the atmospheric drift consistent with projected flight lanes?",
+      "Should the observer prioritize signal stability over visual noise?",
+      "Do we maintain enough separation from the thermal anomaly to proceed?",
+      "What level of confidence remains in the live telemetry feed?",
+      "Is the scan pattern sufficiently calm to continue tracking?",
+    ];
+    this.currentQuestionIndex = 0;
     this.setupEventListeners();
     this.setupCameraDrive();
+    this.startAwarenessLoop();
     this.startAutoRefresh();
   }
 
@@ -20,6 +29,46 @@ class UniversalViewerSystem {
     document.getElementById("compileBtn").addEventListener("click", () => this.compileCode());
     document.getElementById("analyzeBtn").addEventListener("click", () => this.analyzeAndCompile());
     document.getElementById("interpretBtn").addEventListener("click", () => this.interpretAtmosphere());
+
+    const awarenessBtn = document.getElementById("awarenessAnswerBtn");
+    if (awarenessBtn) {
+      awarenessBtn.addEventListener("click", () => this.answerAwarenessPrompt());
+    }
+  }
+
+  startAwarenessLoop() {
+    const questionEl = document.getElementById("awarenessQuestion");
+    const mindStatusEl = document.getElementById("mindStatus");
+
+    if (!questionEl || !mindStatusEl) {
+      return;
+    }
+
+    const updateAwareness = () => {
+      const nextQuestion = this.awarenessQuestions[this.currentQuestionIndex % this.awarenessQuestions.length];
+      questionEl.textContent = nextQuestion;
+      mindStatusEl.textContent = "Disposition: SERIOUS";
+      this.currentQuestionIndex += 1;
+    };
+
+    updateAwareness();
+    setInterval(updateAwareness, 9000);
+  }
+
+  answerAwarenessPrompt() {
+    const questionEl = document.getElementById("awarenessQuestion");
+    const mindStatusEl = document.getElementById("mindStatus");
+    if (!questionEl || !mindStatusEl) {
+      return;
+    }
+
+    mindStatusEl.textContent = "Disposition: FOCUSED";
+    questionEl.textContent = "Acknowledged. Continuing the scan with measured discipline.";
+    setTimeout(() => {
+      this.currentQuestionIndex = (this.currentQuestionIndex + 1) % this.awarenessQuestions.length;
+      questionEl.textContent = this.awarenessQuestions[this.currentQuestionIndex];
+      mindStatusEl.textContent = "Disposition: SERIOUS";
+    }, 1800);
   }
 
   setupCameraDrive() {
