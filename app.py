@@ -114,6 +114,7 @@ def root_static_files(filename):
 @app.route("/api/compiler/state")
 def api_state():
     with lock:
+        unified = coordinator.get_unified_state()
         payload = {
             "system_state": {
                 "status": "online",
@@ -123,9 +124,15 @@ def api_state():
             "antenna_version": state["version"],
             "total_compilations": state["compilations"],
             "total_updates": state["updates"],
-            "known_numbers": coordinator.get_unified_state()["known_numbers"],
+            "known_numbers": unified["known_numbers"],
             "feed": state["feed"][:5],
             "last_activity": datetime.utcnow().isoformat() + "Z",
+            "memory": unified.get("memory", {}),
+            "learning": unified.get("learning", {}),
+            "last_learned": unified.get("last_learned"),
+            "backend": unified.get("backend", {}),
+            "frontend": unified.get("frontend", {}),
+            "ui": unified.get("ui", {}),
         }
     return jsonify(payload)
 
@@ -137,6 +144,15 @@ def api_compile():
     code = data.get("code", "")
     result = coordinator.route_compile_request(code)
     legacy = compile_code(code)
+    backend_ai.learning_engine.record_observation(
+        context="compile_request",
+        outcome=f"compiled:{legacy['module_id']}",
+        signal_quality=result.get("signal_quality", 0),
+        altitude=result.get("altitude", 0),
+        coverage=result.get("coverage", 0),
+        confidence=0.82,
+        source="compile_api",
+    )
     return jsonify({
         "status": "compiled",
         "module_id": legacy["module_id"],
@@ -205,6 +221,31 @@ def api_health():
         "frontend": frontend_ai.status,
         "ui": ui_agent.status,
     })
+
+
+@app.route("/api/experience", methods=["GET", "POST"])
+def api_experience():
+    if request.method == "POST":
+        data = request.get_json(silent=True) or {}
+        context = data.get("context", "manual")
+        outcome = data.get("outcome", "observed")
+        confidence = float(data.get("confidence", 0.6))
+        signal_quality = data.get("signal_quality")
+        altitude = data.get("altitude")
+        coverage = data.get("coverage")
+        source = data.get("source", "user")
+        record = backend_ai.learning_engine.record_observation(
+            context=context,
+            outcome=outcome,
+            signal_quality=signal_quality,
+            altitude=altitude,
+            coverage=coverage,
+            confidence=confidence,
+            source=source,
+        )
+        return jsonify({"status": "ok", "record": record, "summary": backend_ai.learning_engine.summarize()})
+
+    return jsonify({"experience": backend_ai.learning_engine.summarize()})
 
 
 @app.route("/api/feed")

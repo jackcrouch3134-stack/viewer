@@ -15,6 +15,7 @@ class AgentCoordinator:
         frontend_state = self.frontend.get_state()
         memory = backend_state.get("memory", {})
         recent = memory.get("recent_observations", [])
+        learning = backend_state.get("learning", {})
         return {
             "backend": backend_state,
             "frontend": frontend_state,
@@ -29,6 +30,7 @@ class AgentCoordinator:
                 "coverage": self.backend.pull_known_number("coverage", 85),
             },
             "memory": memory,
+            "learning": learning,
             "last_learned": recent[-1] if recent else None,
         }
 

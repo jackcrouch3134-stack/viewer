@@ -22,10 +22,14 @@ class UniversalViewerSystem {
       const frontend = state.frontend || {};
       const ui = state.ui || {};
       const numbers = state.known_numbers || {};
+      const learning = state.learning || {};
+      const memory = state.memory || {};
 
       const signalQuality = numbers.signal_quality || frontend.signal_quality || 92;
       const altitude = numbers.altitude || 800;
       const coverage = numbers.coverage || 85;
+      const learningStatus = learning.status || "observing";
+      const learningSummary = learning.summary || {};
 
       document.getElementById("compilationCount").textContent = backend.compilations || 0;
       document.getElementById("updateCount").textContent = backend.updates || 0;
@@ -45,7 +49,22 @@ class UniversalViewerSystem {
       document.getElementById("systemStatus").innerHTML = '<span class="pulse"></span> ONLINE';
       document.getElementById("backendStatus").textContent = backend.status || "ONLINE";
       document.getElementById("frontendStatus").textContent = frontend.status || "ONLINE";
-      document.getElementById("userModeStatus").textContent = "OBSERVING";
+      document.getElementById("userModeStatus").textContent = learningStatus.toUpperCase();
+
+      if (document.getElementById("learningStatus")) {
+        document.getElementById("learningStatus").textContent = `Learning status: ${learningStatus} • confidence ${Number(learningSummary.confidence || 0.0).toFixed(2)}`;
+      }
+      const experienceList = document.getElementById("experienceList");
+      if (experienceList) {
+        const insights = learningSummary.insights || memory.recent_observations || [];
+        const items = insights.slice(0, 4).map((item) => {
+          const context = item.context || item.name || "pattern";
+          const outcome = item.outcome || item.value || "stable";
+          const confidence = item.confidence ?? 0.0;
+          return `<div class="activity-item">${context}: ${outcome} (${Number(confidence).toFixed(2)})</div>`;
+        });
+        experienceList.innerHTML = items.length ? items.join("") : '<div class="activity-item">No learned experience yet.</div>';
+      }
 
       if (document.getElementById("gestureCount")) {
         document.getElementById("gestureCount").textContent = ui.gesture_history || 0;

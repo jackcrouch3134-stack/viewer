@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from learning_engine import LearningEngine
+
 
 class BackendAI:
     def __init__(self):
@@ -10,6 +12,7 @@ class BackendAI:
         self.modules = []
         self.status = "ONLINE"
         self.memory_path = Path(__file__).resolve().parent / "memory.json"
+        self.learning_engine = LearningEngine(self.memory_path)
         self.number_pool = {
             "signal_quality": [88, 91, 94, 96, 89, 93, 97],
             "altitude": [420, 610, 780, 950, 1200, 840],
@@ -19,42 +22,34 @@ class BackendAI:
             "coverage": [72, 81, 89, 93, 87, 90],
         }
         self.pool_index = {key: 0 for key in self.number_pool}
-        self.memory = self._load_memory()
+        self.memory = self.learning_engine.memory
 
     def _load_memory(self):
         """Load durable learning memory from disk."""
-        if not self.memory_path.exists():
-            return {
-                "patterns": {},
-                "recent_observations": [],
-            }
-
-        try:
-            with self.memory_path.open("r", encoding="utf-8") as handle:
-                data = json.load(handle)
-                return {
-                    "patterns": data.get("patterns", {}),
-                    "recent_observations": data.get("recent_observations", []),
-                }
-        except (json.JSONDecodeError, OSError):
-            return {"patterns": {}, "recent_observations": []}
+        return self.learning_engine._load_memory()
 
     def _save_memory(self):
         """Persist the learning memory so it survives restarts."""
-        with self.memory_path.open("w", encoding="utf-8") as handle:
-            json.dump(self.memory, handle, indent=2, sort_keys=True)
+        self.learning_engine._save_memory()
+        self.memory = self.learning_engine.memory
 
     def remember_pattern(self, name, value):
         """Record a learned pattern or behavior."""
-        patterns = self.memory["patterns"]
-        patterns[name] = {"value": value, "count": patterns.get(name, {}).get("count", 0) + 1}
-        self.memory["recent_observations"].append({
-            "name": name,
+        pattern = self.learning_engine.record_observation(
+            context=name,
+            outcome=value,
+            signal_quality=value,
+            coverage=value,
+            altitude=value,
+            confidence=0.6,
+            source="backend",
+        )
+        self.memory = self.learning_engine.memory
+        return {
             "value": value,
-        })
-        self.memory["recent_observations"] = self.memory["recent_observations"][-20:]
-        self._save_memory()
-        return patterns[name]
+            "count": self.memory["patterns"].get(name, {}).get("count", 0),
+            "latest": pattern,
+        }
 
     def pull_known_number(self, key, default=0):
         """Pull the next number from a reusable internal pool."""
@@ -96,6 +91,8 @@ class BackendAI:
 
     def get_state(self):
         """Return backend AI state."""
+        self.memory = self.learning_engine.memory
+        adaptive = self.learning_engine.get_adaptive_status()
         return {
             "status": self.status,
             "compilations": self.compilations,
@@ -105,6 +102,7 @@ class BackendAI:
             "modules": self.modules[:5],
             "known_pool": self.get_known_pool(),
             "memory": self.memory,
+            "learning": adaptive,
         }
 
 
