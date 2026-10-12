@@ -3,7 +3,16 @@ class UniversalViewerSystem {
     this.systemState = null;
     this.modules = [];
     this.refreshInterval = 2000;
+    this.camera = {
+      x: 0,
+      y: 0,
+      targetX: 0,
+      targetY: 0,
+      smoothing: 0.12,
+      maxShift: 22,
+    };
     this.setupEventListeners();
+    this.setupCameraDrive();
     this.startAutoRefresh();
   }
 
@@ -11,6 +20,39 @@ class UniversalViewerSystem {
     document.getElementById("compileBtn").addEventListener("click", () => this.compileCode());
     document.getElementById("analyzeBtn").addEventListener("click", () => this.analyzeAndCompile());
     document.getElementById("interpretBtn").addEventListener("click", () => this.interpretAtmosphere());
+  }
+
+  setupCameraDrive() {
+    this.cameraEl = document.querySelector(".pov-avatar");
+    if (!this.cameraEl) {
+      return;
+    }
+
+    const motionSignal = {
+      x: 0,
+      y: 0,
+    };
+
+    const updateTarget = () => {
+      const driftX = Math.sin(Date.now() / 1100) * this.camera.maxShift;
+      const driftY = Math.cos(Date.now() / 1400) * (this.camera.maxShift * 0.6);
+
+      this.camera.targetX = driftX;
+      this.camera.targetY = driftY;
+      motionSignal.x = driftX;
+      motionSignal.y = driftY;
+    };
+
+    const animateCamera = () => {
+      updateTarget();
+      this.camera.x += (this.camera.targetX - this.camera.x) * this.camera.smoothing;
+      this.camera.y += (this.camera.targetY - this.camera.y) * this.camera.smoothing;
+      this.cameraEl.style.setProperty("--camera-x", `${this.camera.x}px`);
+      this.cameraEl.style.setProperty("--camera-y", `${this.camera.y}px`);
+      requestAnimationFrame(animateCamera);
+    };
+
+    requestAnimationFrame(animateCamera);
   }
 
   async updateStatus() {
