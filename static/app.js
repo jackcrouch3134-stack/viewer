@@ -32,6 +32,8 @@ class UniversalViewerSystem {
       const learningSummary = learning.summary || {};
       const strengthRating = learning.strength_rating || learningSummary.strength_rating || "minimal";
       const severityRating = learning.severity_rating || learningSummary.severity_rating || "none";
+      const expScore = Number(learning.exp_score ?? learningSummary.exp_score ?? 0).toFixed(1);
+      const chaosActivity = Number(learning.chaos_activity ?? learningSummary.chaos_activity ?? 0).toFixed(3);
 
       document.getElementById("compilationCount").textContent = backend.compilations || 0;
       document.getElementById("updateCount").textContent = backend.updates || 0;
@@ -54,7 +56,7 @@ class UniversalViewerSystem {
       document.getElementById("userModeStatus").textContent = learningStatus.toUpperCase();
 
       if (document.getElementById("learningStatus")) {
-        document.getElementById("learningStatus").textContent = `Learning status: ${learningStatus} • confidence ${Number(learningSummary.confidence || 0.0).toFixed(2)} • strength ${strengthRating} • severity ${severityRating}`;
+        document.getElementById("learningStatus").textContent = `Learning status: ${learningStatus} • EXP ${expScore} • chaos ${chaosActivity} • strength ${strengthRating} • severity ${severityRating}`;
       }
       const experienceList = document.getElementById("experienceList");
       if (experienceList) {

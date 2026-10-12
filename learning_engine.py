@@ -109,6 +109,31 @@ class LearningEngine:
             return "low"
         return "minimal"
 
+    def _chaos_activity(self, records):
+        if not records:
+            return 0.0
+        import math
+
+        total = 0.0
+        previous = None
+        for index, record in enumerate(records):
+            confidence = float(record.get("confidence", 0.0) or 0.0)
+            signal = float(record.get("signal_quality", 0.0) or 0.0) / 100.0
+            coverage = float(record.get("coverage", 0.0) or 0.0) / 100.0
+            altitude = float(record.get("altitude", 0.0) or 0.0) / 1000.0
+            stamp = self._parse_time(record.get("timestamp"))
+            phase = 0.0
+            if stamp is not None:
+                phase = (stamp.microsecond / 1_000_000) + (index + 1)
+            volatility = conf = confidence
+            if previous is not None:
+                volatility += abs(confidence - previous)
+            volatility += signal + coverage + altitude
+            wave = abs(math.sin((index + 1.0) * 1.618 + phase))
+            total += (volatility / 4.0) * (0.5 + wave)
+            previous = confidence
+        return round(min(1.0, total / max(1, len(records) * 2.5)), 3)
+
     def summarize(self, period_days=7):
         experience = self.memory.get("experience", [])
         patterns = self.memory.get("patterns", {})
@@ -132,8 +157,10 @@ class LearningEngine:
 
         if windowed:
             avg_confidence = sum(float(item.get("confidence", 0.0)) for item in windowed) / len(windowed)
+            chaos_activity = self._chaos_activity(windowed)
             strength = float(avg_confidence)
-            severity = min(1.0, strength * 1.15)
+            severity = min(1.0, strength * 0.9 + chaos_activity * 0.6)
+            exp_score = round(min(100.0, max(0.0, (strength * 60.0) + (chaos_activity * 40.0))), 2)
             experience_strength = self._rating_for_value(strength)
             experience_severity = self._rating_for_value(severity)
             experience_count = len(windowed)
@@ -141,6 +168,8 @@ class LearningEngine:
             avg_confidence = 0.0
             strength = 0.0
             severity = 0.0
+            chaos_activity = 0.0
+            exp_score = 0.0
             experience_strength = "minimal"
             experience_severity = "none"
             experience_count = 0
@@ -164,6 +193,8 @@ class LearningEngine:
             "strength_rating": experience_strength,
             "severity": round(severity, 3),
             "severity_rating": experience_severity,
+            "exp_score": exp_score,
+            "chaos_activity": chaos_activity,
             "period_days": period_days,
             "top_patterns": top_patterns,
             "insights": self.memory.get("insights", [])[:5],
@@ -181,5 +212,7 @@ class LearningEngine:
             "strength_rating": summary.get("strength_rating", "minimal"),
             "severity": summary.get("severity", 0.0),
             "severity_rating": summary.get("severity_rating", "none"),
+            "exp_score": summary.get("exp_score", 0.0),
+            "chaos_activity": summary.get("chaos_activity", 0.0),
             "summary": summary,
         }
