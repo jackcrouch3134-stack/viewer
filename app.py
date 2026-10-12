@@ -225,6 +225,7 @@ def api_health():
 
 @app.route("/api/experience", methods=["GET", "POST"])
 def api_experience():
+    period_days = int(request.args.get("period_days", 7))
     if request.method == "POST":
         data = request.get_json(silent=True) or {}
         context = data.get("context", "manual")
@@ -243,9 +244,9 @@ def api_experience():
             confidence=confidence,
             source=source,
         )
-        return jsonify({"status": "ok", "record": record, "summary": backend_ai.learning_engine.summarize()})
+        return jsonify({"status": "ok", "record": record, "summary": backend_ai.learning_engine.summarize(period_days=period_days)})
 
-    return jsonify({"experience": backend_ai.learning_engine.summarize()})
+    return jsonify({"experience": backend_ai.learning_engine.summarize(period_days=period_days)})
 
 
 @app.route("/api/feed")

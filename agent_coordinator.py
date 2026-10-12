@@ -9,9 +9,9 @@ class AgentCoordinator:
         self.frontend = frontend
         self.ui = ui
 
-    def get_unified_state(self):
+    def get_unified_state(self, period_days=7):
         """Return combined state from all three agents."""
-        backend_state = self.backend.get_state()
+        backend_state = self.backend.get_state(period_days=period_days)
         frontend_state = self.frontend.get_state()
         memory = backend_state.get("memory", {})
         recent = memory.get("recent_observations", [])

@@ -89,10 +89,10 @@ class BackendAI:
             "temperature": temperature,
         }
 
-    def get_state(self):
+    def get_state(self, period_days=7):
         """Return backend AI state."""
         self.memory = self.learning_engine.memory
-        adaptive = self.learning_engine.get_adaptive_status()
+        adaptive = self.learning_engine.get_adaptive_status(period_days=period_days)
         return {
             "status": self.status,
             "compilations": self.compilations,

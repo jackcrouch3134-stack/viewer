@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
@@ -88,7 +88,28 @@ class LearningEngine:
         self._save_memory()
         return entry
 
-    def summarize(self):
+    def _parse_time(self, value):
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            return value
+        try:
+            return datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+
+    def _rating_for_value(self, value):
+        if value is None:
+            return "none"
+        if value >= 0.85:
+            return "high"
+        if value >= 0.65:
+            return "medium"
+        if value >= 0.4:
+            return "low"
+        return "minimal"
+
+    def summarize(self, period_days=7):
         experience = self.memory.get("experience", [])
         patterns = self.memory.get("patterns", {})
         latest = experience[-1] if experience else None
@@ -102,6 +123,28 @@ class LearningEngine:
                 "last_outcome": data.get("last_outcome"),
             })
 
+        window_start = datetime.now(timezone.utc) - timedelta(days=period_days)
+        windowed = []
+        for record in experience:
+            stamp = self._parse_time(record.get("timestamp"))
+            if stamp and stamp >= window_start:
+                windowed.append(record)
+
+        if windowed:
+            avg_confidence = sum(float(item.get("confidence", 0.0)) for item in windowed) / len(windowed)
+            strength = float(avg_confidence)
+            severity = min(1.0, strength * 1.15)
+            experience_strength = self._rating_for_value(strength)
+            experience_severity = self._rating_for_value(severity)
+            experience_count = len(windowed)
+        else:
+            avg_confidence = 0.0
+            strength = 0.0
+            severity = 0.0
+            experience_strength = "minimal"
+            experience_severity = "none"
+            experience_count = 0
+
         confidence = float(latest.get("confidence", 0.0)) if latest else 0.0
         if confidence >= 0.75:
             status = "adaptive"
@@ -112,21 +155,31 @@ class LearningEngine:
 
         summary = {
             "experience_count": len(experience),
+            "window_count": experience_count,
             "latest_pattern": latest.get("context") if latest else "none",
             "latest_outcome": latest.get("outcome") if latest else "none",
             "confidence": round(confidence, 3),
             "status": status,
+            "strength": round(strength, 3),
+            "strength_rating": experience_strength,
+            "severity": round(severity, 3),
+            "severity_rating": experience_severity,
+            "period_days": period_days,
             "top_patterns": top_patterns,
             "insights": self.memory.get("insights", [])[:5],
         }
         return summary
 
-    def get_adaptive_status(self):
-        summary = self.summarize()
+    def get_adaptive_status(self, period_days=7):
+        summary = self.summarize(period_days=period_days)
         base = summary.get("status", "observing")
         return {
             "status": base,
             "confidence": summary.get("confidence", 0.0),
             "latest_pattern": summary.get("latest_pattern", "none"),
+            "strength": summary.get("strength", 0.0),
+            "strength_rating": summary.get("strength_rating", "minimal"),
+            "severity": summary.get("severity", 0.0),
+            "severity_rating": summary.get("severity_rating", "none"),
             "summary": summary,
         }

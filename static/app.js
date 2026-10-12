@@ -30,6 +30,8 @@ class UniversalViewerSystem {
       const coverage = numbers.coverage || 85;
       const learningStatus = learning.status || "observing";
       const learningSummary = learning.summary || {};
+      const strengthRating = learning.strength_rating || learningSummary.strength_rating || "minimal";
+      const severityRating = learning.severity_rating || learningSummary.severity_rating || "none";
 
       document.getElementById("compilationCount").textContent = backend.compilations || 0;
       document.getElementById("updateCount").textContent = backend.updates || 0;
@@ -52,7 +54,7 @@ class UniversalViewerSystem {
       document.getElementById("userModeStatus").textContent = learningStatus.toUpperCase();
 
       if (document.getElementById("learningStatus")) {
-        document.getElementById("learningStatus").textContent = `Learning status: ${learningStatus} • confidence ${Number(learningSummary.confidence || 0.0).toFixed(2)}`;
+        document.getElementById("learningStatus").textContent = `Learning status: ${learningStatus} • confidence ${Number(learningSummary.confidence || 0.0).toFixed(2)} • strength ${strengthRating} • severity ${severityRating}`;
       }
       const experienceList = document.getElementById("experienceList");
       if (experienceList) {
