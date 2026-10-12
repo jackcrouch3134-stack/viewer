@@ -115,6 +115,7 @@ def api_state():
             "total_compilations": state["compilations"],
             "total_updates": state["updates"],
             "known_numbers": coordinator.get_unified_state()["known_numbers"],
+            "feed": state["feed"][:5],
             "last_activity": datetime.utcnow().isoformat() + "Z",
         }
     return jsonify(payload)

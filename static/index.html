@@ -22,7 +22,32 @@
         </header>
 
         <!-- THREE AI AGENTS STATUS -->
-        <section class="agents-panel">
+        <section class="agents-panel personal-pov-overview">
+            <div class="agent-card backend-ai personal-focus">
+                <div class="agent-header">
+                    <h3>👁️ Personal POV</h3>
+                    <span class="agent-status online" id="userModeStatus">OBSERVING</span>
+                </div>
+                <div class="agent-metrics">
+                    <div class="metric">
+                        <span class="label">Mode</span>
+                        <span class="value" id="personalMode">First Person</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Signal</span>
+                        <span class="value" id="signalQuality">92%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Altitude</span>
+                        <span class="value" id="altitudeValue">800 km</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Coverage</span>
+                        <span class="value" id="coverageValue">85%</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="agent-card backend-ai">
                 <div class="agent-header">
                     <h3>🔧 Backend AI</h3>
@@ -67,33 +92,8 @@
                         <span class="value" id="zoomLevel">1.0x</span>
                     </div>
                     <div class="metric">
-                        <span class="label">Signal</span>
-                        <span class="value" id="signalQuality">92%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="agent-card ui-agent">
-                <div class="agent-header">
-                    <h3>⚡ UI Agent</h3>
-                    <span class="agent-status online" id="uiStatus">ONLINE</span>
-                </div>
-                <div class="agent-metrics">
-                    <div class="metric">
-                        <span class="label">Gestures</span>
-                        <span class="value" id="gestureCount">0</span>
-                    </div>
-                    <div class="metric">
-                        <span class="label">Alerts</span>
-                        <span class="value" id="alertCount">0</span>
-                    </div>
-                    <div class="metric">
-                        <span class="label">Safe Mode</span>
-                        <span class="value" id="safeMode">ON</span>
-                    </div>
-                    <div class="metric">
-                        <span class="label">Feedback</span>
-                        <span class="value" id="feedbackCount">0</span>
+                        <span class="label">Focus</span>
+                        <span class="value" id="focusName">Observer</span>
                     </div>
                 </div>
             </div>
@@ -101,24 +101,16 @@
 
         <!-- MAIN VIEWER GRID -->
         <section class="viewer-grid">
-            <!-- LEFT PANEL: SATELLITE VIEW -->
-            <div class="panel satellite-panel">
+            <!-- LEFT PANEL: PERSONAL POV VIEW -->
+            <div class="panel satellite-panel personal-pov-panel">
                 <div class="panel-header">
-                    📡 SATELLITE VIEW
+                    👁️ PERSONAL POV
                 </div>
                 <div class="satellite-display" id="satelliteView">
-                    <div class="earth-sphere">
-                        <div class="earth-rotation"></div>
-                    </div>
-                    <div class="satellite-info">
-                        <p>Orbital Status: <strong>ACTIVE</strong></p>
-                        <p>Coverage: <strong>Global</strong></p>
-                        <p>Resolution: <strong>High</strong></p>
-                    </div>
-
-                    <div class="person-pov">
-                        <div class="pov-frame">
-                            <div class="pov-avatar" aria-label="Person point of view avatar">
+                    <div class="pov-scope">
+                        <div class="pov-viewport">
+                            <div class="pov-glow"></div>
+                            <div class="pov-avatar" aria-label="Personal point of view avatar">
                                 <div class="head">
                                     <div class="face">
                                         <span class="eye left"></span>
@@ -128,17 +120,22 @@
                                 </div>
                                 <div class="shoulders"></div>
                                 <div class="camera"></div>
+                                <div class="pov-scan-line"></div>
                             </div>
-                            <div class="pov-label">PERSON POV</div>
                         </div>
+                    </div>
+                    <div class="satellite-info personal-summary">
+                        <p>Observer Status: <strong id="observerStatus">ACTIVE</strong></p>
+                        <p>Environment: <strong id="environmentStatus">Clear View</strong></p>
+                        <p>Current Mode: <strong id="currentMode">First Person</strong></p>
                     </div>
                 </div>
             </div>
 
-            <!-- CENTER PANEL: ATMOSPHERE -->
+            <!-- CENTER PANEL: LIVE FEED / ENVIRONMENT -->
             <div class="panel atmosphere-panel">
                 <div class="panel-header">
-                    🌤️ ATMOSPHERIC ANALYSIS
+                    🌤️ LIVE FEED
                 </div>
                 <div class="atmosphere-display">
                     <div class="layer" style="--depth: 0">
@@ -156,23 +153,23 @@
                     <div class="layer" style="--depth: 4">
                         <span>Troposphere</span>
                     </div>
-                    <div id="atmosphereStatus" class="status-text">Ready</div>
+                    <div id="atmosphereStatus" class="status-text">Tracking</div>
                 </div>
             </div>
 
             <!-- RIGHT PANEL: BIOLOGY SCAN -->
             <div class="panel biology-panel">
                 <div class="panel-header">
-                    🧬 BIOLOGICAL SCAN
+                    🧬 OBSERVER TRACKING
                 </div>
                 <div class="biology-display">
                     <div class="scan-grid">
-                        <div class="scan-item">Flora</div>
-                        <div class="scan-item">Fauna</div>
-                        <div class="scan-item">Microbes</div>
-                        <div class="scan-item">Ecosystem</div>
+                        <div class="scan-item">Vision</div>
+                        <div class="scan-item">Motion</div>
+                        <div class="scan-item">Audio</div>
+                        <div class="scan-item">Context</div>
                     </div>
-                    <div id="bioStatus" class="status-text">Ready</div>
+                    <div id="bioStatus" class="status-text">Locked</div>
                 </div>
             </div>
         </section>
