@@ -13,6 +13,8 @@ class AgentCoordinator:
         """Return combined state from all three agents."""
         backend_state = self.backend.get_state()
         frontend_state = self.frontend.get_state()
+        memory = backend_state.get("memory", {})
+        recent = memory.get("recent_observations", [])
         return {
             "backend": backend_state,
             "frontend": frontend_state,
@@ -26,6 +28,8 @@ class AgentCoordinator:
                 "power": self.backend.pull_known_number("power", 80),
                 "coverage": self.backend.pull_known_number("coverage", 85),
             },
+            "memory": memory,
+            "last_learned": recent[-1] if recent else None,
         }
 
     def route_compile_request(self, code):
