@@ -206,19 +206,19 @@
         <div class="panel-body">
           <div class="setting-row">
             <label>Autonomous Mode</label>
-            <button class="toggle active" data-setting="autonomous_mode" aria-label="Toggle autonomous mode"></button>
+            <button class="toggle active" data-setting="autonomous_mode" aria-label="Toggle autonomous mode" aria-pressed="true"></button>
           </div>
           <div class="setting-row">
             <label>Live Feed</label>
-            <button class="toggle active" data-setting="live_feed" aria-label="Toggle live feed"></button>
+            <button class="toggle active" data-setting="live_feed" aria-label="Toggle live feed" aria-pressed="true"></button>
           </div>
           <div class="setting-row">
             <label>Safe Mode</label>
-            <button class="toggle active" data-setting="safe_mode" aria-label="Toggle safe mode"></button>
+            <button class="toggle active" data-setting="safe_mode" aria-label="Toggle safe mode" aria-pressed="true"></button>
           </div>
           <div class="setting-row">
             <label>Auto Updates</label>
-            <button class="toggle active" data-setting="auto_updates" aria-label="Toggle auto updates"></button>
+            <button class="toggle active" data-setting="auto_updates" aria-label="Toggle auto updates" aria-pressed="true"></button>
           </div>
           <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
         </div>
@@ -248,7 +248,9 @@
     function renderToggles() {
       document.querySelectorAll('.toggle').forEach((btn) => {
         const key = btn.dataset.setting;
-        btn.classList.toggle('active', !!settings[key]);
+        const active = !!settings[key];
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
       });
     }
 
@@ -262,15 +264,19 @@
 
     document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
       try {
-        const response = await fetch('/api/safety', {
+        const response = await fetch('/api/settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            safe_mode: settings.safe_mode,
-            strict_mode: settings.auto_updates
-          })
+          body: JSON.stringify(settings)
         });
-        const data = await response.json();
+        if (!response.ok) throw new Error('Settings save failed');
+        const safetyResponse = await fetch('/api/safety', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ safe_mode: settings.safe_mode })
+        });
+        if (!safetyResponse.ok) throw new Error('Safety settings save failed');
+        const data = await safetyResponse.json();
         document.getElementById('systemStatus').textContent = data.result && data.result.safe_mode ? 'ONLINE' : 'STANDBY';
         document.getElementById('feedStatus').textContent = settings.live_feed ? 'ACTIVE' : 'PAUSED';
       } catch (err) {
@@ -280,8 +286,14 @@
 
     async function loadStatus() {
       try {
-        const response = await fetch('/api/state');
+        const [response, settingsResponse] = await Promise.all([
+          fetch('/api/state'),
+          fetch('/api/settings')
+        ]);
         const data = await response.json();
+        const settingsData = await settingsResponse.json();
+        Object.assign(settings, settingsData.settings || {});
+        renderToggles();
         const system = data.system_state || {};
         const signal = data.known_numbers && data.known_numbers.signal_quality ? `${data.known_numbers.signal_quality}%` : '92%';
         document.getElementById('systemStatus').textContent = system.status ? system.status.toUpperCase() : 'ONLINE';

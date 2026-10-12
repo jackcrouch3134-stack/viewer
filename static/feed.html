@@ -266,17 +266,30 @@
         return;
       }
 
-      feedStream.innerHTML = items.map(item => `
-        <article class="feed-item">
-          <div class="feed-item-header">
-            <span>${item.source || 'system'}</span>
-            <span class="level ${item.level || 'info'}">${(item.level || 'info').toUpperCase()}</span>
-          </div>
-          <h3>${item.title || 'Live update'}</h3>
-          <p>${item.message || 'Awaiting update.'}</p>
-          <div class="muted" style="margin-top: 8px;">${item.timestamp || ''}</div>
-        </article>
-      `).join('');
+      const levels = ['info', 'success', 'warning', 'error'];
+      feedStream.replaceChildren(...items.map(item => {
+        const article = document.createElement('article');
+        article.className = 'feed-item';
+        const header = document.createElement('div');
+        header.className = 'feed-item-header';
+        const source = document.createElement('span');
+        source.textContent = item.source || 'system';
+        const level = document.createElement('span');
+        const levelName = levels.includes(item.level) ? item.level : 'info';
+        level.classList.add('level', levelName);
+        level.textContent = levelName.toUpperCase();
+        header.append(source, level);
+        const title = document.createElement('h3');
+        title.textContent = item.title || 'Live update';
+        const message = document.createElement('p');
+        message.textContent = item.message || 'Awaiting update.';
+        const timestamp = document.createElement('div');
+        timestamp.className = 'muted';
+        timestamp.style.marginTop = '8px';
+        timestamp.textContent = item.timestamp || '';
+        article.append(header, title, message, timestamp);
+        return article;
+      }));
     }
 
     async function loadFeed() {

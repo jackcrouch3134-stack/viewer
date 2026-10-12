@@ -20,6 +20,12 @@ state = {
     "updates": 0,
     "version": "1.0.0",
     "modules": {},
+    "settings": {
+        "autonomous_mode": True,
+        "live_feed": True,
+        "safe_mode": True,
+        "auto_updates": True,
+    },
     "feed": [{
         "id": 1,
         "source": "system",
@@ -37,7 +43,7 @@ def push_feed_event(source, title, message, level="info", payload=None):
     """Add a feed event to the live stream state."""
     with lock:
         event = {
-            "id": len(state["feed"]) + 1,
+            "id": max((item["id"] for item in state["feed"]), default=0) + 1,
             "source": source,
             "title": title,
             "message": message,
@@ -77,7 +83,7 @@ def auto_upgrade():
     while True:
         time.sleep(30)
         with lock:
-            if state["modules"]:
+            if state["modules"] and state["settings"]["auto_updates"]:
                 major, minor, patch = state["version"].split(".")
                 state["version"] = f"{major}.{minor}.{int(patch) + 1}"
                 state["updates"] += 1
@@ -109,7 +115,10 @@ def root_static_files(filename):
 def api_state():
     with lock:
         payload = {
-            "system_state": {"status": "online", "autonomous_mode": True},
+            "system_state": {
+                "status": "online",
+                "autonomous_mode": state["settings"]["autonomous_mode"],
+            },
             "compiled_modules": len(state["modules"]),
             "antenna_version": state["version"],
             "total_compilations": state["compilations"],
@@ -167,6 +176,8 @@ def api_safety():
     data = request.get_json(silent=True) or {}
     safe_mode = bool(data.get("safe_mode", True))
     strict_mode = bool(data.get("strict_mode", False))
+    with lock:
+        state["settings"]["safe_mode"] = safe_mode
     result = coordinator.route_safety_toggle(safe_mode, strict_mode)
     return jsonify({"status": "ok", "result": result})
 
@@ -212,6 +223,22 @@ def api_feed_post():
     payload = data.get("payload", {})
     event = push_feed_event(source, title, message, level=level, payload=payload)
     return jsonify({"status": "ok", "event": event})
+
+
+@app.route("/api/settings", methods=["GET", "POST"])
+def api_settings():
+    if request.method == "POST":
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return jsonify({"error": "Settings must be a JSON object"}), 400
+        settings = state["settings"]
+        updates = {key: value for key, value in data.items() if key in settings}
+        if any(type(value) is not bool for value in updates.values()):
+            return jsonify({"error": "Settings values must be booleans"}), 400
+        with lock:
+            settings.update(updates)
+    with lock:
+        return jsonify({"settings": dict(state["settings"])})
 
 
 @app.route("/feed")
