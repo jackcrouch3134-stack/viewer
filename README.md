@@ -16,6 +16,8 @@ Together they create a real-time Earth-monitoring control center with autonomous
 - Autonomous compiler
 - Direct intelligence translation
 - Live status dashboard
+- Live observation feed with manually submitted events
+- Configurable autonomous, live-feed, safe-mode, and auto-update settings
 - Real-time inter-agent state synchronization
 - Gesture and interaction monitoring
 - Intelligent system status monitoring
@@ -74,6 +76,16 @@ The app exposes several JSON API routes:
 - `POST /api/alert` – creates UI alerts
 - `GET /api/feedback` – returns haptic and visual feedback queues
 - `GET /api/health` – checks system health
+- `GET /api/feed` – returns the latest feed events
+- `POST /api/feed` – adds a feed event (`source`, `title`, `message`, `level`, and `payload`)
+- `GET /api/settings` – returns the current settings
+- `POST /api/settings` – updates boolean settings (`autonomous_mode`, `live_feed`, `safe_mode`, and `auto_updates`)
+
+## Live Feed and Settings
+
+The live observation feed is available at `/feed`; it refreshes from `GET /api/feed` every three seconds and lets users submit events through `POST /api/feed`. The API retains up to 20 recent events in application memory.
+
+The settings page is available at `/settings`. Its settings are held in application memory and can be read or updated through `/api/settings`. Updating `safe_mode` through the settings page also updates the safety API. These values reset when the application restarts.
 
 ## Notes
 
