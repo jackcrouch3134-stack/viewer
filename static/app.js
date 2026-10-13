@@ -146,6 +146,8 @@ class UniversalViewerSystem {
       const learning = state.learning || {};
       const memory = state.memory || {};
       const profile = state.personal_profile || {};
+      const motivator = state.motivation_system || backend.motivation_system || {};
+      const motivatorState = motivator.state || {};
 
       const observerName = profile.observer_name || "JC";
       const identityName = profile.identity_name || "JC / Experience Network";
@@ -205,6 +207,17 @@ class UniversalViewerSystem {
       }
       if (document.getElementById("formulaValue")) {
         document.getElementById("formulaValue").textContent = formulaDisplay;
+      }
+
+      const motivationStatus = document.getElementById("motivationStatus");
+      const motivationTranslation = document.getElementById("motivationTranslation");
+      if (motivationStatus) {
+        const motivation = motivatorState.motivation || "adaptive";
+        const energy = Number(motivatorState.energy ?? 0).toFixed(3);
+        motivationStatus.textContent = `${motivation} • signal energy ${energy}`;
+      }
+      if (motivationTranslation) {
+        motivationTranslation.textContent = motivatorState.translation || "No signal to convert.";
       }
 
       const matrixCells = document.querySelectorAll('.matrix-cell');
@@ -295,7 +308,23 @@ class UniversalViewerSystem {
       return;
     }
 
-    await this.compileCode();
+    const response = await fetch("/api/compile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code })
+    });
+
+    const result = await response.json();
+    const message = result?.result?.energy_relationship || result?.result?.readable_translation || "Signal analyzed.";
+    const statusText = typeof message === "object"
+      ? `Signal translated: ${message.translation || "system ready"}`
+      : `Signal translated: ${message}`;
+    document.getElementById("compilerStatus").textContent = statusText;
+    const motivationTranslation = document.getElementById("motivationTranslation");
+    if (motivationTranslation) {
+      motivationTranslation.textContent = typeof message === "object" ? (message.translation || "Signal converted.") : message;
+    }
+    this.updateStatus();
   }
 
   async interpretAtmosphere() {

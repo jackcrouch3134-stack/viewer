@@ -198,6 +198,16 @@ def api_state():
             },
             "compiled_modules": len(state["modules"]),
             "personal_profile": PERSONAL_PROFILE,
+            "motivation_system": unified.get("backend", {}).get("motivation_system", {
+                "name": "string motivator",
+                "state": {
+                    "motivation": "adaptive",
+                    "energy": 0.0,
+                    "translation": "No signal to convert.",
+                    "readability": 0.0,
+                    "signal_strength": 0.0,
+                },
+            }),
             "antenna_version": state["version"],
             "total_compilations": state["compilations"],
             "total_updates": state["updates"],
