@@ -118,8 +118,9 @@ def root_static_files(filename):
 @app.route("/api/state")
 @app.route("/api/compiler/state")
 def api_state():
+    period_days = int(request.args.get("period_days", 7))
     with lock:
-        unified = coordinator.get_unified_state()
+        unified = coordinator.get_unified_state(period_days=period_days)
         payload = {
             "system_state": {
                 "status": "online",
@@ -138,6 +139,7 @@ def api_state():
             "backend": unified.get("backend", {}),
             "frontend": unified.get("frontend", {}),
             "ui": unified.get("ui", {}),
+            "period_days": period_days,
         }
     return jsonify(payload)
 

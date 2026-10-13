@@ -134,6 +134,37 @@ class LearningEngine:
             previous = confidence
         return round(min(1.0, total / max(1, len(records) * 2.5)), 3)
 
+    def get_trend(self, period_days=7):
+        experience = self.memory.get("experience", [])
+        if not experience:
+            return []
+
+        window_start = datetime.now(timezone.utc) - timedelta(days=period_days)
+        buckets = {}
+        for record in experience:
+            stamp = self._parse_time(record.get("timestamp"))
+            if stamp is None or stamp < window_start:
+                continue
+            day_key = stamp.date().isoformat()
+            buckets.setdefault(day_key, []).append(record)
+
+        points = []
+        for day_key in sorted(buckets):
+            records = buckets[day_key]
+            avg_confidence = sum(float(item.get("confidence", 0.0)) for item in records) / len(records)
+            chaos_activity = self._chaos_activity(records)
+            strength = float(avg_confidence)
+            severity = min(1.0, strength * 0.9 + chaos_activity * 0.6)
+            exp_score = round(min(100.0, max(0.0, (strength * 60.0) + (chaos_activity * 40.0))), 2)
+            points.append({
+                "date": day_key,
+                "strength": round(strength, 3),
+                "severity": round(severity, 3),
+                "chaos_activity": chaos_activity,
+                "exp_score": exp_score,
+            })
+        return points
+
     def summarize(self, period_days=7):
         experience = self.memory.get("experience", [])
         patterns = self.memory.get("patterns", {})
@@ -196,8 +227,10 @@ class LearningEngine:
             "exp_score": exp_score,
             "chaos_activity": chaos_activity,
             "period_days": period_days,
+            "formula": "EXP = (strength × 60) + (chaos × 40)",
             "top_patterns": top_patterns,
             "insights": self.memory.get("insights", [])[:5],
+            "trend": self.get_trend(period_days=period_days),
         }
         return summary
 

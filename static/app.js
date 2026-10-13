@@ -11,11 +11,25 @@ class UniversalViewerSystem {
     document.getElementById("compileBtn").addEventListener("click", () => this.compileCode());
     document.getElementById("analyzeBtn").addEventListener("click", () => this.analyzeAndCompile());
     document.getElementById("interpretBtn").addEventListener("click", () => this.interpretAtmosphere());
+    const rangeSelect = document.getElementById("rangeSelect");
+    if (rangeSelect) {
+      rangeSelect.addEventListener("change", async () => {
+        const value = Number(rangeSelect.value || 7);
+        await this.fetchState(value);
+      });
+    }
+  }
+
+  async fetchState(periodDays = 7) {
+    const response = await fetch(`/api/state?period_days=${periodDays}`);
+    return response.json();
   }
 
   async updateStatus() {
     try {
-      const response = await fetch("/api/state");
+      const rangeSelect = document.getElementById("rangeSelect");
+      const periodDays = rangeSelect ? Number(rangeSelect.value || 7) : 7;
+      const response = await fetch(`/api/state?period_days=${periodDays}`);
       const state = await response.json();
 
       const backend = state.backend || {};
@@ -34,6 +48,9 @@ class UniversalViewerSystem {
       const severityRating = learning.severity_rating || learningSummary.severity_rating || "none";
       const expScore = Number(learning.exp_score ?? learningSummary.exp_score ?? 0).toFixed(1);
       const chaosActivity = Number(learning.chaos_activity ?? learningSummary.chaos_activity ?? 0).toFixed(3);
+      const strengthValue = Number(learning.strength ?? learningSummary.strength ?? 0).toFixed(3);
+      const severityValue = Number(learning.severity ?? learningSummary.severity ?? 0).toFixed(3);
+      const formulaDisplay = learningSummary.formula || "EXP = (strength × 60) + (chaos × 40)";
 
       document.getElementById("compilationCount").textContent = backend.compilations || 0;
       document.getElementById("updateCount").textContent = backend.updates || 0;
@@ -58,6 +75,32 @@ class UniversalViewerSystem {
       if (document.getElementById("learningStatus")) {
         document.getElementById("learningStatus").textContent = `Learning status: ${learningStatus} • EXP ${expScore} • chaos ${chaosActivity} • strength ${strengthRating} • severity ${severityRating}`;
       }
+      if (document.getElementById("formulaValue")) {
+        document.getElementById("formulaValue").textContent = formulaDisplay;
+      }
+      if (document.getElementById("strengthValue")) {
+        document.getElementById("strengthValue").textContent = strengthValue;
+      }
+      if (document.getElementById("severityValue")) {
+        document.getElementById("severityValue").textContent = severityValue;
+      }
+      if (document.getElementById("chaosValue")) {
+        document.getElementById("chaosValue").textContent = chaosActivity;
+      }
+
+      const trendBars = document.getElementById("trendBars");
+      if (trendBars) {
+        const trend = learningSummary.trend || [];
+        const maxExp = trend.length ? Math.max(...trend.map((point) => Number(point.exp_score || 0))) : 1;
+        const bars = trend.slice(-7).map((point) => {
+          const value = Number(point.exp_score || 0);
+          const height = Math.max(14, (value / maxExp) * 100);
+          const label = point.date ? point.date.slice(5) : "";
+          return `<div class="trend-bar" style="height:${height}%" title="${value}"><span>${label}</span></div>`;
+        }).join("");
+        trendBars.innerHTML = bars || '<div class="activity-item">No trend data yet.</div>';
+      }
+
       const experienceList = document.getElementById("experienceList");
       if (experienceList) {
         const insights = learningSummary.insights || memory.recent_observations || [];
@@ -81,6 +124,10 @@ class UniversalViewerSystem {
       }
       if (document.getElementById("safeMode")) {
         document.getElementById("safeMode").textContent = (frontend.safe_mode === true || ui.safe_mode === true) ? "ON" : "OFF";
+      }
+
+      if (rangeSelect) {
+        rangeSelect.value = String(state.period_days || 7);
       }
     } catch (err) {
       console.error("Status update failed:", err);
@@ -125,7 +172,9 @@ class UniversalViewerSystem {
 
   async refreshModules() {
     try {
-      const response = await fetch("/api/state");
+      const rangeSelect = document.getElementById("rangeSelect");
+      const periodDays = rangeSelect ? Number(rangeSelect.value || 7) : 7;
+      const response = await fetch(`/api/state?period_days=${periodDays}`);
       const state = await response.json();
       const backend = state.backend || {};
       const list = document.getElementById("recentModules");

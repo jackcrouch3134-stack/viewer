@@ -516,6 +516,100 @@ textarea::placeholder {
   font-size: 0.72rem;
 }
 
+.experience-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.experience-controls select {
+  background: rgba(4, 17, 25, 0.86);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font: inherit;
+}
+
+.formula-box {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(95, 228, 255, 0.3);
+  background: rgba(95, 228, 255, 0.06);
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formula-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.mini-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mini-metric {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 9px 10px;
+}
+
+.trend-panel {
+  margin-bottom: 14px;
+  padding: 10px 0 0;
+}
+
+.trend-header {
+  font-size: 0.74rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.trend-bar-list {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  min-height: 72px;
+  padding: 8px 0 0;
+}
+
+.trend-bar {
+  flex: 1;
+  min-width: 18px;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, var(--green), var(--cyan));
+  opacity: 0.8;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 8px;
+  min-height: 18px;
+}
+
+.trend-bar span {
+  position: absolute;
+  top: -18px;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
 .dot {
   width: 8px;
   height: 8px;

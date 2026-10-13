@@ -200,6 +200,36 @@
                 🧠 EXPERIENCE MEMORY
             </div>
             <div class="experience-summary" id="learningStatus">Observing</div>
+            <div class="experience-controls">
+                <label for="rangeSelect">Window</label>
+                <select id="rangeSelect">
+                    <option value="7">7 days</option>
+                    <option value="30">30 days</option>
+                    <option value="90">90 days</option>
+                </select>
+            </div>
+            <div class="formula-box">
+                <span class="formula-label">EXP Formula</span>
+                <strong id="formulaValue">EXP = (strength × 60) + (chaos × 40)</strong>
+            </div>
+            <div class="mini-metrics">
+                <div class="mini-metric">
+                    <span class="label">Strength</span>
+                    <span class="value" id="strengthValue">0.000</span>
+                </div>
+                <div class="mini-metric">
+                    <span class="label">Severity</span>
+                    <span class="value" id="severityValue">0.000</span>
+                </div>
+                <div class="mini-metric">
+                    <span class="label">Chaos</span>
+                    <span class="value" id="chaosValue">0.000</span>
+                </div>
+            </div>
+            <div class="trend-panel">
+                <div class="trend-header">Recent EXP trend</div>
+                <div class="trend-bar-list" id="trendBars"></div>
+            </div>
             <div class="experience-list" id="experienceList">
                 <div class="activity-item">No learned experience yet.</div>
             </div>
