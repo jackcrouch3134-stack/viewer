@@ -937,6 +937,63 @@ textarea::placeholder {
   padding-top: 8px;
 }
 
+.drawing-panel {
+  margin-bottom: 22px;
+}
+
+.drawing-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.drawing-canvas-wrap {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+#drawingCanvas {
+  width: 100%;
+  max-width: 100%;
+  height: 180px;
+  display: block;
+  background: linear-gradient(180deg, rgba(8, 17, 24, 0.96), rgba(19, 29, 40, 0.96));
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: crosshair;
+}
+
+.drawing-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.drawing-output {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.output-label {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.drawing-summary,
+.drawing-lines {
+  color: var(--text);
+  line-height: 1.6;
+}
+
 .activity-panel {
   margin-bottom: 16px;
 }

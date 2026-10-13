@@ -81,6 +81,7 @@ state = {
         "level": "info",
         "timestamp": datetime.utcnow().isoformat() + "Z",
     }],
+    "drawings": [],
 }
 lock = threading.Lock()
 coordinator = AgentCoordinator(backend_ai, frontend_ai, ui_agent)
@@ -340,6 +341,24 @@ def api_experience():
         return jsonify({"status": "ok", "record": record, "summary": backend_ai.learning_engine.summarize(period_days=period_days)})
 
     return jsonify({"experience": backend_ai.learning_engine.summarize(period_days=period_days)})
+
+
+@app.route("/api/drawings", methods=["GET", "POST"])
+def api_drawings():
+    if request.method == "POST":
+        data = request.get_json(silent=True) or {}
+        drawing = {
+            "id": len(state["drawings"]) + 1,
+            "title": data.get("title", "Hand-drawn analysis"),
+            "source": data.get("source", "upload"),
+            "analysis": data.get("analysis", "No analysis provided."),
+            "converted_lines": data.get("converted_lines", []),
+            "confidence": float(data.get("confidence", 0.6)),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+        }
+        state["drawings"].append(drawing)
+        return jsonify({"status": "ok", "drawing": drawing})
+    return jsonify({"drawings": state["drawings"]})
 
 
 @app.route("/api/feed")

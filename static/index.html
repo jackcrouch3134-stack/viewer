@@ -401,6 +401,27 @@
             </div>
         </section>
 
+        <section class="panel drawing-panel">
+            <div class="panel-header">
+                ✏️ DRAWING REPRODUCTION EXTENSION
+            </div>
+            <div class="drawing-layout">
+                <div class="drawing-canvas-wrap">
+                    <canvas id="drawingCanvas" width="300" height="180"></canvas>
+                    <div class="drawing-controls">
+                        <button id="drawClearBtn" class="btn btn-secondary">Clear</button>
+                        <button id="drawAnalyzeBtn" class="btn btn-primary">Analyze &amp; reproduce</button>
+                    </div>
+                </div>
+                <div class="drawing-output">
+                    <div class="output-label">Reproduction summary</div>
+                    <div id="drawingSummary" class="drawing-summary">No drawing yet.</div>
+                    <div class="output-label">Rebuilt lines</div>
+                    <div id="drawingLines" class="drawing-lines">0</div>
+                </div>
+            </div>
+        </section>
+
         <!-- RECENT ACTIVITY -->
         <section class="panel activity-panel">
             <div class="panel-header">
