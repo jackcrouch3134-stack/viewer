@@ -145,6 +145,15 @@ class UniversalViewerSystem {
       const numbers = state.known_numbers || {};
       const learning = state.learning || {};
       const memory = state.memory || {};
+      const profile = state.personal_profile || {};
+
+      const observerName = profile.observer_name || "JC";
+      const identityName = profile.identity_name || "JC / Experience Network";
+      const missionTitle = profile.mission_title || "Cleaner observation, stronger memory, smarter movement.";
+      const missionSummary = profile.mission_summary || "The home screen is framed as a personal experience map: signal quality, learned patterns, and mission awareness stay visible while keeping the JC point of view front and center.";
+      const focusLabel = profile.focus_label || "Observer";
+      const modeLabel = profile.mode_label || "First Person";
+      const footerLine = profile.footer_line || "JC Observer Experience System v1.0 | Personal signal intelligence";
 
       const signalQuality = numbers.signal_quality || frontend.signal_quality || 92;
       const altitude = numbers.altitude || 800;
@@ -170,15 +179,21 @@ class UniversalViewerSystem {
       document.getElementById("altitudeValue").textContent = `${altitude} km`;
       document.getElementById("coverageValue").textContent = `${coverage}%`;
       document.getElementById("coverageValueSecondary").textContent = `${coverage}%`;
-      document.getElementById("currentMode").textContent = "First Person";
+      document.getElementById("currentMode").textContent = modeLabel;
       document.getElementById("observerStatus").textContent = "ACTIVE";
       document.getElementById("environmentStatus").textContent = signalQuality > 90 ? "Clear View" : "Scanning";
-      document.getElementById("focusName").textContent = "Observer";
-      document.getElementById("hudModeValue").textContent = "First Person";
-      document.getElementById("hudFocusValue").textContent = "Observer";
+      document.getElementById("focusName").textContent = focusLabel;
+      document.getElementById("hudModeValue").textContent = modeLabel;
+      document.getElementById("hudFocusValue").textContent = focusLabel;
       document.getElementById("missionSignalValue").textContent = `${signalQuality}%`;
       document.getElementById("missionExpValue").textContent = expScore;
       document.getElementById("missionRouteValue").textContent = signalQuality > 88 ? "Stable" : "Scanning";
+      document.getElementById("profileIdentity").textContent = identityName;
+      document.getElementById("profileMissionTitle").textContent = missionTitle;
+      document.getElementById("profileMissionSummary").textContent = missionSummary;
+      document.getElementById("observerNameValue").textContent = observerName;
+      document.getElementById("mapNodeJC").textContent = observerName;
+      document.getElementById("footerLine").textContent = footerLine;
 
       document.getElementById("systemStatus").innerHTML = '<span class="pulse"></span> ONLINE';
       document.getElementById("backendStatus").textContent = backend.status || "ONLINE";
@@ -186,7 +201,7 @@ class UniversalViewerSystem {
       document.getElementById("userModeStatus").textContent = learningStatus.toUpperCase();
 
       if (document.getElementById("learningStatus")) {
-        document.getElementById("learningStatus").textContent = `Learning status: ${learningStatus} • EXP ${expScore} • chaos ${chaosActivity} • strength ${strengthRating} • severity ${severityRating}`;
+        document.getElementById("learningStatus").textContent = `${observerName} learning status: ${learningStatus} • EXP ${expScore} • chaos ${chaosActivity} • strength ${strengthRating} • severity ${severityRating}`;
       }
       if (document.getElementById("formulaValue")) {
         document.getElementById("formulaValue").textContent = formulaDisplay;

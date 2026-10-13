@@ -41,6 +41,16 @@ app.config.update(
 
 APP_DOMAIN = app.config["APP_DOMAIN"]
 APP_SCHEME = app.config["APP_SCHEME"]
+PERSONAL_PROFILE = {
+    "observer_name": "JC",
+    "project_name": "JC Observer Experience System",
+    "identity_name": "JC / Experience Network",
+    "mission_title": "Cleaner observation, stronger memory, smarter movement.",
+    "mission_summary": "The home screen is framed as a personal experience map: signal quality, learned patterns, and mission awareness stay visible while keeping the JC point of view front and center.",
+    "focus_label": "Observer",
+    "mode_label": "First Person",
+    "footer_line": "JC Observer Experience System v1.0 | Personal signal intelligence",
+}
 
 
 def get_public_base_url():
@@ -182,8 +192,12 @@ def api_state():
                 "autonomous_mode": state["settings"]["autonomous_mode"],
                 "domain": APP_DOMAIN,
                 "scheme": APP_SCHEME,
+                "observer_name": PERSONAL_PROFILE["observer_name"],
+                "project_name": PERSONAL_PROFILE["project_name"],
+                "identity_name": PERSONAL_PROFILE["identity_name"],
             },
             "compiled_modules": len(state["modules"]),
+            "personal_profile": PERSONAL_PROFILE,
             "antenna_version": state["version"],
             "total_compilations": state["compilations"],
             "total_updates": state["updates"],

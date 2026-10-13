@@ -25,9 +25,9 @@
 
         <section class="mission-panel">
             <div class="mission-brief">
-                <div class="eyebrow">JC / Experience Network</div>
-                <h2>Cleaner observation, stronger memory, smarter movement.</h2>
-                <p>The home screen is now framed as a live experience map: signal quality, learned patterns, and mission coverage stay visible without losing the personal POV focus.</p>
+                <div class="eyebrow" id="profileIdentity">JC / Experience Network</div>
+                <h2 id="profileMissionTitle">Cleaner observation, stronger memory, smarter movement.</h2>
+                <p id="profileMissionSummary">The home screen is framed as a personal experience map: signal quality, learned patterns, and mission awareness stay visible while keeping the JC point of view front and center.</p>
                 <div class="mission-stats">
                     <div class="stat-chip">
                         <span class="label">EXP</span>
@@ -48,7 +48,7 @@
                     <div class="map-grid"></div>
                     <div class="map-route route-one"></div>
                     <div class="map-route route-two"></div>
-                    <div class="map-node node-alpha"><span>JC</span></div>
+                    <div class="map-node node-alpha"><span id="mapNodeJC">JC</span></div>
                     <div class="map-node node-beta"><span>EXP</span></div>
                     <div class="map-node node-gamma"><span>MEM</span></div>
                     <div class="map-node node-delta"><span>OBS</span></div>
@@ -73,6 +73,10 @@
                     <div class="metric">
                         <span class="label">Mode</span>
                         <span class="value" id="personalMode">First Person</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Observer</span>
+                        <span class="value" id="observerNameValue">JC</span>
                     </div>
                     <div class="metric">
                         <span class="label">Signal</span>
@@ -404,7 +408,7 @@
 
         <!-- FOOTER -->
         <footer class="footer">
-            <p>Universal Earth Viewing System v1.0 | Powered by Autonomous AI Intelligence</p>
+            <p id="footerLine">JC Observer Experience System v1.0 | Personal signal intelligence</p>
             <p>
                 <a href="/feed" style="color: var(--cyan); text-decoration: none; margin-right: 14px;">Open Live Feed</a>
                 <a href="/settings" style="color: var(--cyan); text-decoration: none;">Open Settings</a>
