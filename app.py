@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 import hashlib
 import re
@@ -12,8 +13,34 @@ from backend_ai import backend_ai
 from frontend_ai import frontend_ai
 from ui_agent import ui_agent
 
+
+def _env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 app = Flask(__name__, static_folder=str(STATIC_DIR))
+server_name = os.getenv("SERVER_NAME") or None
+scheme = os.getenv("APP_SCHEME", "https" if _env_bool("APP_HTTPS_ONLY", False) else "http")
+app.config.update(
+    APP_DOMAIN=os.getenv("APP_DOMAIN", "viewer.local"),
+    APP_PORT=int(os.getenv("APP_PORT", "8000")),
+    APP_SCHEME=scheme,
+    PREFERRED_URL_SCHEME=scheme,
+    SERVER_NAME=server_name,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SECURE=_env_bool("APP_HTTPS_ONLY", False),
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_NAME="viewer_session",
+    MAX_CONTENT_LENGTH=4 * 1024 * 1024,
+    SECURITY_HEADERS_ENABLED=True,
+)
+
+APP_DOMAIN = app.config["APP_DOMAIN"]
+APP_SCHEME = app.config["APP_SCHEME"]
 
 state = {
     "compilations": 0,
@@ -92,6 +119,24 @@ def auto_upgrade():
 threading.Thread(target=auto_upgrade, daemon=True).start()
 
 
+@app.after_request
+def add_security_headers(response):
+    if app.config.get("SECURITY_HEADERS_ENABLED"):
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "img-src 'self' data:; "
+            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "font-src 'self' data:; "
+            "connect-src 'self';"
+        )
+    return response
+
+
 @app.route("/")
 def index():
     return send_from_directory(STATIC_DIR, "index.html")
@@ -125,6 +170,8 @@ def api_state():
             "system_state": {
                 "status": "online",
                 "autonomous_mode": state["settings"]["autonomous_mode"],
+                "domain": APP_DOMAIN,
+                "scheme": APP_SCHEME,
             },
             "compiled_modules": len(state["modules"]),
             "antenna_version": state["version"],
@@ -140,6 +187,11 @@ def api_state():
             "frontend": unified.get("frontend", {}),
             "ui": unified.get("ui", {}),
             "period_days": period_days,
+            "domain_config": {
+                "domain": APP_DOMAIN,
+                "scheme": APP_SCHEME,
+                "port": app.config["APP_PORT"],
+            },
         }
     return jsonify(payload)
 
@@ -301,4 +353,6 @@ def settings_page():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8000, debug=True)
+    host = os.getenv("HOST", "127.0.0.1")
+    port = int(os.getenv("PORT", app.config["APP_PORT"]))
+    app.run(host=host, port=port, debug=_env_bool("DEBUG", False), use_reloader=False)
