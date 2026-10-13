@@ -272,6 +272,52 @@ body {
   letter-spacing: 0.1em;
 }
 
+.understanding-matrix {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.matrix-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 8px;
+}
+
+.matrix-header,
+.matrix-row-label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.matrix-cell {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  text-align: center;
+  padding: 8px;
+  color: var(--text);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.matrix-cell strong {
+  display: block;
+  color: var(--cyan);
+  font-size: 0.8rem;
+}
+
+.matrix-cell.low { background: rgba(95, 228, 255, 0.08); }
+.matrix-cell.mid { background: rgba(126, 240, 189, 0.08); }
+.matrix-cell.high { background: rgba(255, 200, 87, 0.08); }
+
 .agents-panel {
   display: grid;
   grid-template-columns: repeat(3, minmax(240px, 1fr));

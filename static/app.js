@@ -84,6 +84,13 @@ class UniversalViewerSystem {
       if (document.getElementById("formulaValue")) {
         document.getElementById("formulaValue").textContent = formulaDisplay;
       }
+
+      const matrixCells = document.querySelectorAll('.matrix-cell');
+      matrixCells.forEach((cell, index) => {
+        const tint = ["low", "mid", "high"][index % 3];
+        cell.classList.remove('low', 'mid', 'high');
+        cell.classList.add(tint);
+      });
       if (document.getElementById("strengthValue")) {
         document.getElementById("strengthValue").textContent = strengthValue;
       }
