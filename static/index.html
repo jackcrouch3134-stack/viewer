@@ -23,6 +23,45 @@
             </div>
         </header>
 
+        <section class="mission-panel">
+            <div class="mission-brief">
+                <div class="eyebrow">JC / Experience Network</div>
+                <h2>Cleaner observation, stronger memory, smarter movement.</h2>
+                <p>The home screen is now framed as a live experience map: signal quality, learned patterns, and mission coverage stay visible without losing the personal POV focus.</p>
+                <div class="mission-stats">
+                    <div class="stat-chip">
+                        <span class="label">EXP</span>
+                        <strong id="missionExpValue">0.0</strong>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="label">Signal</span>
+                        <strong id="missionSignalValue">92%</strong>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="label">Route</span>
+                        <strong id="missionRouteValue">Stable</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="map-panel">
+                <div class="mini-map">
+                    <div class="map-grid"></div>
+                    <div class="map-route route-one"></div>
+                    <div class="map-route route-two"></div>
+                    <div class="map-node node-alpha"><span>JC</span></div>
+                    <div class="map-node node-beta"><span>EXP</span></div>
+                    <div class="map-node node-gamma"><span>MEM</span></div>
+                    <div class="map-node node-delta"><span>OBS</span></div>
+                    <div class="map-scan"></div>
+                </div>
+                <div class="mini-hud">
+                    <div class="hud-item"><span>Mode</span><strong id="hudModeValue">First Person</strong></div>
+                    <div class="hud-item"><span>Focus</span><strong id="hudFocusValue">Observer</strong></div>
+                    <div class="hud-item"><span>Coverage</span><strong id="coverageValue">85%</strong></div>
+                </div>
+            </div>
+        </section>
+
         <!-- THREE AI AGENTS STATUS -->
         <section class="agents-panel personal-pov-overview">
             <div class="agent-card backend-ai personal-focus">
@@ -45,7 +84,7 @@
                     </div>
                     <div class="metric">
                         <span class="label">Coverage</span>
-                        <span class="value" id="coverageValue">85%</span>
+                        <span class="value" id="coverageValueSecondary">85%</span>
                     </div>
                 </div>
             </div>

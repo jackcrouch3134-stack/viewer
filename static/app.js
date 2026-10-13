@@ -62,10 +62,16 @@ class UniversalViewerSystem {
       document.getElementById("signalQuality").textContent = `${signalQuality}%`;
       document.getElementById("altitudeValue").textContent = `${altitude} km`;
       document.getElementById("coverageValue").textContent = `${coverage}%`;
+      document.getElementById("coverageValueSecondary").textContent = `${coverage}%`;
       document.getElementById("currentMode").textContent = "First Person";
       document.getElementById("observerStatus").textContent = "ACTIVE";
       document.getElementById("environmentStatus").textContent = signalQuality > 90 ? "Clear View" : "Scanning";
       document.getElementById("focusName").textContent = "Observer";
+      document.getElementById("hudModeValue").textContent = "First Person";
+      document.getElementById("hudFocusValue").textContent = "Observer";
+      document.getElementById("missionSignalValue").textContent = `${signalQuality}%`;
+      document.getElementById("missionExpValue").textContent = expScore;
+      document.getElementById("missionRouteValue").textContent = signalQuality > 88 ? "Stable" : "Scanning";
 
       document.getElementById("systemStatus").innerHTML = '<span class="pulse"></span> ONLINE';
       document.getElementById("backendStatus").textContent = backend.status || "ONLINE";
