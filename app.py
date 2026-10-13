@@ -42,6 +42,16 @@ app.config.update(
 APP_DOMAIN = app.config["APP_DOMAIN"]
 APP_SCHEME = app.config["APP_SCHEME"]
 
+
+def get_public_base_url():
+    domain = APP_DOMAIN
+    port = app.config["APP_PORT"]
+    if APP_SCHEME == "https" and port == 443:
+        return f"{APP_SCHEME}://{domain}"
+    if APP_SCHEME == "http" and port == 80:
+        return f"{APP_SCHEME}://{domain}"
+    return f"{APP_SCHEME}://{domain}:{port}"
+
 state = {
     "compilations": 0,
     "updates": 0,

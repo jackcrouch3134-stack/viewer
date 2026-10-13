@@ -44,6 +44,23 @@ The system is designed to simulate an autonomous Earth viewing and analysis plat
 - the user interface agent interprets interaction patterns and feedback
 - all three stay synchronized through a central coordinator
 
+## Deployment Domain and Security
+
+The app supports a production-style domain configuration through environment variables. The defaults keep local development simple, but a deployed instance can be configured with a real domain and HTTPS-first policy.
+
+```bash
+export APP_DOMAIN=viewer.example.com
+export APP_SCHEME=https
+export APP_PORT=443
+export APP_HTTPS_ONLY=true
+export SERVER_NAME=viewer.example.com
+export HOST=0.0.0.0
+export PORT=443
+export DEBUG=false
+```
+
+When configured, the app exposes the public base URL through its state payload via `system_state.domain` and `domain_config`, and it adds security headers to serve the app in a more official, locked-frame setup.
+
 ## Run
 
 1. Install Python dependencies:
@@ -63,6 +80,8 @@ python app.py
 ```text
 http://localhost:8000
 ```
+
+For a production deployment, run with the environment variables shown above and serve it behind a TLS terminator or reverse proxy that terminates HTTPS.
 
 ## API Endpoints
 
