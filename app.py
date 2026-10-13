@@ -102,6 +102,11 @@ def static_assets(name):
     return send_from_directory(STATIC_DIR, name)
 
 
+@app.route("/icons/<path:filename>")
+def icon_assets(filename):
+    return send_from_directory(STATIC_DIR / "icons", filename)
+
+
 @app.route("/<path:filename>")
 def root_static_files(filename):
     """Serve static assets at the site root, matching the dashboard HTML."""
