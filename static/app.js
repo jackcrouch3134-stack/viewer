@@ -53,6 +53,11 @@ class UniversalViewerSystem {
       : signal.includes("goal") || signal.includes("mission")
         ? "advance with intent"
         : "keep tracking and adapt";
+    const speech = signal.includes("risk") || signal.includes("danger")
+      ? "Voice: caution and adjustment."
+      : signal.includes("goal") || signal.includes("mission")
+        ? "Voice: intent and next move."
+        : "Voice: stable observation in progress.";
 
     const signalEl = document.getElementById("signalFlow");
     const feedEl = document.getElementById("feedFlow");
@@ -62,10 +67,10 @@ class UniversalViewerSystem {
     if (signalEl) signalEl.textContent = signal;
     if (feedEl) feedEl.textContent = feed;
     if (imaginationEl) imaginationEl.textContent = imagination;
-    if (outcomeEl) outcomeEl.textContent = outcome;
+    if (outcomeEl) outcomeEl.textContent = `${outcome} • ${speech}`;
 
-    const direction = `Signal → ${feed} → ${imagination} → ${outcome}`;
-    this.updateThoughtDirection(direction, 1);
+    const direction = `Signal → ${feed} → ${imagination} → ${outcome} → speech`;
+    this.updateThoughtDirection(direction, 4);
   }
 
   recordExperienceFromInput() {
