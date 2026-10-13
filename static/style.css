@@ -408,6 +408,74 @@ body {
   margin-bottom: 22px;
 }
 
+.thought-direction-wrap {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.thought-direction-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(95, 228, 255, 0.08);
+  border: 1px solid rgba(95, 228, 255, 0.22);
+  border-radius: 12px;
+}
+
+.status-tag {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.thought-direction-status strong {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.direction-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.direction-step {
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  min-height: 76px;
+  padding: 10px 8px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  color: var(--muted);
+  transition: all 0.2s ease;
+}
+
+.direction-step span {
+  font-weight: 800;
+  color: var(--cyan);
+  font-size: 0.8rem;
+}
+
+.direction-step small {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.56rem;
+}
+
+.direction-step.active {
+  background: rgba(126, 240, 189, 0.08);
+  border-color: rgba(126, 240, 189, 0.4);
+  color: var(--text);
+  box-shadow: 0 0 18px rgba(126, 240, 189, 0.12);
+}
+
 .understanding-layout {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;

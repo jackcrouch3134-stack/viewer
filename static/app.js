@@ -63,6 +63,9 @@ class UniversalViewerSystem {
     if (feedEl) feedEl.textContent = feed;
     if (imaginationEl) imaginationEl.textContent = imagination;
     if (outcomeEl) outcomeEl.textContent = outcome;
+
+    const direction = `Signal → ${feed} → ${imagination} → ${outcome}`;
+    this.updateThoughtDirection(direction, 1);
   }
 
   recordExperienceFromInput() {
@@ -89,7 +92,18 @@ class UniversalViewerSystem {
       list.removeChild(items[items.length - 1]);
     }
 
+    this.updateThoughtDirection("Signal → interpretation → response", 0);
     this.translateSignal();
+  }
+
+  updateThoughtDirection(label, activeStep = 0) {
+    const status = document.getElementById("thoughtDirectionStatus");
+    if (status) status.textContent = label;
+
+    const steps = document.querySelectorAll(".direction-step");
+    steps.forEach((step, index) => {
+      step.classList.toggle("active", index === activeStep);
+    });
   }
 
   generateExperienceSummary(rawText) {
