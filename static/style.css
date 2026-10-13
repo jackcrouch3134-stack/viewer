@@ -404,6 +404,67 @@ body {
   padding: 16px;
 }
 
+.understanding-panel {
+  margin-bottom: 22px;
+}
+
+.understanding-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 16px;
+}
+
+.understanding-input-block {
+  display: grid;
+  gap: 10px;
+}
+
+.understanding-input-block label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.understanding-input-block textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
+.understanding-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.understanding-pipeline {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.flow-card {
+  display: grid;
+  gap: 6px;
+  min-height: 96px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.flow-label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.62rem;
+}
+
+.flow-card strong {
+  color: var(--text);
+}
+
 .panel-header {
   color: var(--cyan);
   letter-spacing: 0.12em;

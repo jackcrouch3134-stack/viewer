@@ -18,6 +18,94 @@ class UniversalViewerSystem {
         await this.fetchState(value);
       });
     }
+
+    const translateBtn = document.getElementById("translateSignalBtn");
+    if (translateBtn) {
+      translateBtn.addEventListener("click", () => this.translateSignal());
+    }
+
+    const recordBtn = document.getElementById("recordExperienceBtn");
+    if (recordBtn) {
+      recordBtn.addEventListener("click", () => this.recordExperienceFromInput());
+    }
+  }
+
+  translateSignal() {
+    const input = document.getElementById("feedInput");
+    if (!input) return;
+
+    const raw = (input.value || "").trim();
+    if (!raw) {
+      input.focus();
+      return;
+    }
+
+    const cleaned = raw.replace(/\s+/g, " ");
+    const signal = cleaned.length > 72 ? cleaned.slice(0, 72) + "…" : cleaned;
+    const feed = signal.length > 26 ? "patterned translation" : "direct observation";
+    const imagination = signal.includes("route") || signal.includes("map")
+      ? "route-aware meaning"
+      : signal.includes("light") || signal.includes("signal")
+        ? "signal-driven meaning"
+        : "interpretive sense";
+    const outcome = signal.includes("risk") || signal.includes("danger")
+      ? "reposition and monitor"
+      : signal.includes("goal") || signal.includes("mission")
+        ? "advance with intent"
+        : "keep tracking and adapt";
+
+    const signalEl = document.getElementById("signalFlow");
+    const feedEl = document.getElementById("feedFlow");
+    const imaginationEl = document.getElementById("imaginationFlow");
+    const outcomeEl = document.getElementById("outcomeFlow");
+
+    if (signalEl) signalEl.textContent = signal;
+    if (feedEl) feedEl.textContent = feed;
+    if (imaginationEl) imaginationEl.textContent = imagination;
+    if (outcomeEl) outcomeEl.textContent = outcome;
+  }
+
+  recordExperienceFromInput() {
+    const input = document.getElementById("feedInput");
+    if (!input) return;
+
+    const raw = (input.value || "").trim();
+    if (!raw) {
+      input.focus();
+      return;
+    }
+
+    const list = document.getElementById("experienceList");
+    if (!list) return;
+
+    const summary = this.generateExperienceSummary(raw);
+    const item = document.createElement("div");
+    item.className = "activity-item";
+    item.innerHTML = `<strong>Signal translated:</strong> ${summary}`;
+    list.prepend(item);
+
+    const items = list.querySelectorAll(".activity-item");
+    while (items.length > 4) {
+      list.removeChild(items[items.length - 1]);
+    }
+
+    this.translateSignal();
+  }
+
+  generateExperienceSummary(rawText) {
+    const normalized = rawText.replace(/\s+/g, " ").trim();
+    const hasRoute = /route|map|path|location/i.test(normalized);
+    const hasRisk = /risk|threat|warning|danger/i.test(normalized);
+    const hasSignal = /signal|feed|pulse|light|scan/i.test(normalized);
+    const hasIntent = /goal|mission|next|plan/i.test(normalized);
+
+    if (hasRoute && hasRisk) return "Mapped risk into a route correction and intent reset.";
+    if (hasRoute && hasIntent) return "Converted a route cue into a directionally adaptive plan.";
+    if (hasSignal && hasIntent) return "Merged signal context with mission intent to refine the model.";
+    if (hasRisk) return "Detected warning data and translated it into cautious adaptation.";
+    if (hasRoute) return "Used the map as a frame for interpretation and motion guidance.";
+    if (hasSignal) return "Transformed raw signal data into a meaningful pattern.";
+    return "Recorded a small interpretive cycle between feed, meaning, and outcome.";
   }
 
   async fetchState(periodDays = 7) {
