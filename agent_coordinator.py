@@ -41,7 +41,9 @@ class AgentCoordinator:
     def route_safety_toggle(self, safe_mode, strict_mode):
         """Route safety mode toggles."""
         self.frontend.toggle_safe_mode(safe_mode)
+        self.frontend.strict_mode = strict_mode
         self.ui.safe_mode = safe_mode
+        self.ui.strict_mode = strict_mode
         return {
             "safe_mode": safe_mode,
             "strict_mode": strict_mode
