@@ -4,7 +4,8 @@ from app import app
 def test_root_assets_are_served_from_static_directory():
     client = app.test_client()
 
-    for path in ["/", "/style.css", "/app.js", "/cartoon.html"]:
+    for path in ["/", "/style.css", "/app.js", "/cartoon.html", "/viewer.html",
+                 "/cartoon.css", "/cartoon.js", "/viewer.css", "/viewer.js"]:
         response = client.get(path)
         assert response.status_code == 200, f"{path} should be served successfully"
 
