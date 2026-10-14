@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 import re
 import threading
@@ -37,7 +37,7 @@ def compile_code(code):
         state["modules"][module_id] = {
             "module_id": module_id,
             "version": state["version"],
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "code_intent": intent_of(code),
             "optimizations": len(entry_points),
         }
@@ -79,7 +79,7 @@ def build_deprecated_state_payload():
             "antenna_version": state["version"],
             "total_compilations": state["compilations"],
             "total_updates": state["updates"],
-            "last_activity": datetime.utcnow().isoformat() + "Z",
+            "last_activity": datetime.now(timezone.utc).isoformat(),
         }
     payload.update(snapshot)
     return payload
