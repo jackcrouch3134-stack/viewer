@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "universal-earth-viewer"
+version = "1.0.0"
+description = "Universal Earth Viewing System - multi-agent Earth observation dashboard"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["Flask>=3.1,<4.0"]
+
+[project.scripts]
+viewer = "app:app.run"
+
+[tool.setuptools]
+py-modules = ["app", "agent_coordinator", "backend_ai", "frontend_ai", "string_jet", "ui_agent"]
+
+[tool.setuptools.package-data]
+static = ["*.html", "*.css", "*.js"]
+
+[tool.setuptools.data-files]
+"static" = ["static/*.html", "static/*.css", "static/*.js"]
