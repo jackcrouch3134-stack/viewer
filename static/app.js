@@ -15,6 +15,12 @@ class UniversalViewerSystem {
     if (clearBtn) clearBtn.addEventListener("click", () => this.clearDrawingCanvas());
     const analyzeBtn = document.getElementById("drawAnalyzeBtn");
     if (analyzeBtn) analyzeBtn.addEventListener("click", () => this.analyzeDrawing());
+    const uploadInput = document.getElementById("drawingUpload");
+    const uploadBtn = document.getElementById("drawUploadBtn");
+    if (uploadInput && uploadBtn) {
+      uploadBtn.addEventListener("click", () => uploadInput.click());
+      uploadInput.addEventListener("change", (event) => this.handleDrawingUpload(event));
+    }
     const rangeSelect = document.getElementById("rangeSelect");
     if (rangeSelect) {
       rangeSelect.addEventListener("change", async () => {
@@ -349,6 +355,35 @@ class UniversalViewerSystem {
     const lines = document.getElementById("drawingLines");
     if (summary) summary.textContent = "No drawing yet.";
     if (lines) lines.textContent = "0";
+  }
+
+  handleDrawingUpload(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const canvas = document.getElementById("drawingCanvas");
+    const summary = document.getElementById("drawingSummary");
+    const image = new Image();
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      image.onload = () => {
+        if (!canvas) return;
+        const context = canvas.getContext("2d");
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = "#08171f";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        const drawWidth = Math.min(image.width, canvas.width);
+        const drawHeight = Math.min(image.height, canvas.height);
+        const offsetX = (canvas.width - drawWidth) / 2;
+        const offsetY = (canvas.height - drawHeight) / 2;
+        context.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+        if (summary) summary.textContent = `Uploaded drawing loaded: ${file.name}. Ready to analyze.`;
+        this.analyzeDrawing();
+      };
+      image.src = reader.result;
+    };
+
+    reader.readAsDataURL(file);
   }
 
   analyzeDrawing() {
