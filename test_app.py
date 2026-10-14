@@ -27,6 +27,24 @@ def test_api_routes_still_work():
     assert health.get_json()["status"] == "healthy"
 
 
+def test_string_jet_engagement_opens_interlock_and_accessalizes_travel():
+    client = app.test_client()
+
+    response = client.post("/api/string-jet", json={"engage": True})
+    assert response.status_code == 200
+    plane = response.get_json()["plane"]
+    assert plane["engaged"] is True
+    assert plane["interlock_open"] is True
+    assert plane["travel_accessalized"] is True
+
+    response = client.post("/api/string-jet", json={"engage": False})
+    assert response.status_code == 200
+    plane = response.get_json()["plane"]
+    assert plane["engaged"] is False
+    assert plane["interlock_open"] is False
+    assert plane["travel_accessalized"] is False
+
+
 def test_dashboard_state_includes_agent_payloads():
     client = app.test_client()
 

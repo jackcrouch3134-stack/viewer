@@ -175,6 +175,19 @@ def api_safety():
     })
 
 
+@app.route("/api/string-jet", methods=["POST"])
+def api_string_jet():
+    data = request.get_json(silent=True) or {}
+    engage = bool(data.get("engage", True))
+    plane = coordinator.route_string_jet(engage)
+    return jsonify({
+        "status": "ok",
+        "plane": plane,
+        "frontend": frontend_ai.get_state(),
+        "ui": ui_agent.get_state(),
+    })
+
+
 @app.route("/api/alert", methods=["POST"])
 def api_alert():
     data = request.get_json(silent=True) or {}
