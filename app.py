@@ -85,6 +85,25 @@ def build_deprecated_state_payload():
     return payload
 
 
+def error(message, status=400):
+    return jsonify({"status": "error", "error": message}), status
+
+
+def parse_bool(value, default):
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str) and value.strip().lower() in ("true", "false"):
+        return value.strip().lower() == "true"
+    raise ValueError("expected a boolean")
+
+
+def get_json_object():
+    data = request.get_json(silent=True)
+    return data if isinstance(data, dict) else {}
+
+
 @app.route("/")
 def index():
     return send_from_directory(STATIC_DIR, "index.html")
@@ -113,8 +132,10 @@ def api_state():
 @app.route("/api/compile", methods=["POST"])
 @app.route("/api/compiler/compile", methods=["POST"])
 def api_compile():
-    data = request.get_json(silent=True) or {}
+    data = get_json_object()
     code = data.get("code", "")
+    if not isinstance(code, str):
+        return error("code must be a string")
     result = coordinator.route_compile_request(code)
     legacy = compile_code(code)
     return jsonify({
@@ -124,8 +145,7 @@ def api_compile():
         "optimizations": legacy["optimizations"],
         "reorganizations": 0,
         "result": result,
-        "backend": backend_ai.get_state(),
-        "ui": ui_agent.get_state(),
+        **build_agent_snapshot(),
     })
 
 
@@ -137,50 +157,66 @@ def api_modules():
 
 @app.route("/api/gesture", methods=["POST"])
 def api_gesture():
-    data = request.get_json(silent=True) or {}
+    data = get_json_object()
     gesture_type = data.get("type", "drag")
     payload = data.get("data", {})
+    if not isinstance(gesture_type, str) or not gesture_type:
+        return error("type must be a non-empty string")
     state_result = coordinator.route_gesture(gesture_type, payload)
     return jsonify({
         "status": "ok",
         "state": state_result,
-        "ui": ui_agent.get_state(),
+        **build_agent_snapshot(),
     })
 
 
 @app.route("/api/control", methods=["POST"])
 def api_control():
-    data = request.get_json(silent=True) or {}
+    data = get_json_object()
     control = data.get("control")
     value = data.get("value")
+    if control == "zoom":
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or value != value:
+            return error("zoom value must be a number")
+    elif control == "panel":
+        if not isinstance(value, str) or not value:
+            return error("panel value must be a non-empty string")
+    else:
+        return error("unknown control")
     result = coordinator.route_slider_change(control, value)
     return jsonify({
         "status": "ok",
         "result": result,
-        "frontend": frontend_ai.get_state(),
+        **build_agent_snapshot(),
     })
 
 
 @app.route("/api/safety", methods=["POST"])
 def api_safety():
-    data = request.get_json(silent=True) or {}
-    safe_mode = bool(data.get("safe_mode", True))
-    strict_mode = bool(data.get("strict_mode", False))
+    data = get_json_object()
+    try:
+        safe_mode = parse_bool(data.get("safe_mode"), True)
+        strict_mode = parse_bool(data.get("strict_mode"), False)
+    except ValueError:
+        return error("safe_mode and strict_mode must be booleans")
     result = coordinator.route_safety_toggle(safe_mode, strict_mode)
     return jsonify({
         "status": "ok",
         "result": result,
-        "frontend": frontend_ai.get_state(),
-        "ui": ui_agent.get_state(),
+        **build_agent_snapshot(),
     })
 
 
 @app.route("/api/alert", methods=["POST"])
 def api_alert():
-    data = request.get_json(silent=True) or {}
+    data = get_json_object()
     title = data.get("title", "Alert")
     message = data.get("message", "")
     level = data.get("level", "info")
+    if not all(isinstance(v, str) for v in (title, message, level)):
+        return error("title, message and level must be strings")
+    if level not in ("info", "success", "warning", "error"):
+        return error("invalid alert level")
     alert = ui_agent.show_alert(title, message, level)
     return jsonify({"status": "ok", "alert": alert, "ui": ui_agent.get_state()})
 
