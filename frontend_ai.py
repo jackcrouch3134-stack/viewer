@@ -4,6 +4,7 @@ class FrontendAI:
         self.zoom = 1.0
         self.signal_quality = 92
         self.safe_mode = True
+        self.strict_mode = False
         self.status = "ONLINE"
         self.theme = "Cartoon"
 
@@ -30,6 +31,7 @@ class FrontendAI:
             "zoom": self.zoom,
             "signal_quality": self.signal_quality,
             "safe_mode": self.safe_mode,
+            "strict_mode": self.strict_mode,
             "theme": self.theme
         }
 

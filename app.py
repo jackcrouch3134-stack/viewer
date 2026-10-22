@@ -1,6 +1,4 @@
 from datetime import datetime
-import hashlib
-import re
 import threading
 import time
 from pathlib import Path
@@ -20,38 +18,16 @@ lock = threading.Lock()
 coordinator = AgentCoordinator(backend_ai, frontend_ai, ui_agent)
 
 
-def intent_of(code):
-    low = code.lower()
-    for word, name in (("receive", "receiver"), ("transmit", "transmitter"),
-                        ("analyze", "analyzer"), ("process", "processor")):
-        if word in low:
-            return name
-    return "unknown"
-
-
-def compile_code(code):
-    module_id = hashlib.sha256(code.encode()).hexdigest()[:16]
-    entry_points = re.findall(r"def\s+(\w+)\s*\(", code)
-    with lock:
-        state["compilations"] += 1
-        state["modules"][module_id] = {
-            "module_id": module_id,
-            "version": state["version"],
-            "timestamp": datetime.utcnow().isoformat() + "Z",
-            "code_intent": intent_of(code),
-            "optimizations": len(entry_points),
-        }
-    return state["modules"][module_id]
-
-
 def auto_upgrade():
     while True:
         time.sleep(30)
         with lock:
-            if state["modules"]:
-                major, minor, patch = state["version"].split(".")
-                state["version"] = f"{major}.{minor}.{int(patch) + 1}"
-                state["updates"] += 1
+            if backend_ai.modules:
+                major, minor, patch = backend_ai.version.split(".")
+                backend_ai.version = f"{major}.{minor}.{int(patch) + 1}"
+                backend_ai.updates += 1
+                state["version"] = backend_ai.version
+                state["updates"] = backend_ai.updates
 
 
 threading.Thread(target=auto_upgrade, daemon=True).start()
@@ -70,15 +46,15 @@ def build_agent_snapshot():
 
 
 def build_deprecated_state_payload():
-    snapshot = build_agent_snapshot()
     with lock:
-        compiled_modules = len(state["modules"])
+        snapshot = build_agent_snapshot()
+        backend = snapshot["backend"]
         payload = {
             "system_state": {"status": "online", "autonomous_mode": True},
-            "compiled_modules": compiled_modules,
-            "antenna_version": state["version"],
-            "total_compilations": state["compilations"],
-            "total_updates": state["updates"],
+            "compiled_modules": backend["modules_count"],
+            "antenna_version": backend["version"],
+            "total_compilations": backend["compilations"],
+            "total_updates": backend["updates"],
             "last_activity": datetime.utcnow().isoformat() + "Z",
         }
     payload.update(snapshot)
@@ -115,13 +91,21 @@ def api_state():
 def api_compile():
     data = request.get_json(silent=True) or {}
     code = data.get("code", "")
-    result = coordinator.route_compile_request(code)
-    legacy = compile_code(code)
+    if not isinstance(code, str):
+        return jsonify({"error": "code must be a string"}), 400
+    with lock:
+        result = coordinator.route_compile_request(code)
+        state["compilations"] = backend_ai.compilations
+        state["version"] = backend_ai.version
+        state["modules"][result["module_id"]] = {
+            **result,
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+        }
     return jsonify({
         "status": "compiled",
-        "module_id": legacy["module_id"],
-        "version": legacy["version"],
-        "optimizations": legacy["optimizations"],
+        "module_id": result["module_id"],
+        "version": result["version"],
+        "optimizations": result["optimizations"],
         "reorganizations": 0,
         "result": result,
         "backend": backend_ai.get_state(),
@@ -202,4 +186,3 @@ def api_health():
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8000, debug=True)
-
