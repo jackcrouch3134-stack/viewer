@@ -1,5 +1,6 @@
 from backend_ai import backend_ai
 from frontend_ai import frontend_ai
+from string_jet import string_jet_plane
 from ui_agent import ui_agent
 
 
@@ -46,6 +47,22 @@ class AgentCoordinator:
             "safe_mode": safe_mode,
             "strict_mode": strict_mode
         }
+
+    def route_string_jet(self, engage):
+        """Route string-jet plane engagement."""
+        if engage:
+            plane = string_jet_plane.engage()
+        else:
+            plane = string_jet_plane.disengage()
+        self.frontend.set_panel("Travel")
+        self.ui.show_alert(
+            "String-Jet",
+            f"String-jet plane {'engaged' if engage else 'disengaged'}"
+            f" — interlock {'open' if plane['interlock_open'] else 'closed'},"
+            f" travel {'accessalized' if plane['travel_accessalized'] else 'secured'}",
+            "success",
+        )
+        return plane
 
     def get_timestamp(self):
         """Return current timestamp."""

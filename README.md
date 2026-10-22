@@ -42,6 +42,11 @@ The system is designed to simulate an autonomous Earth viewing and analysis plat
 - the user interface agent interprets interaction patterns and feedback
 - all three stay synchronized through a central coordinator
 
+## Requirements
+
+- Python 3.9+
+- Flask 3.1 (see `requirements.txt`)
+
 ## Run
 
 1. Install Python dependencies:

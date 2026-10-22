@@ -11,6 +11,35 @@ class UniversalViewerSystem {
     document.getElementById("compileBtn").addEventListener("click", () => this.compileCode());
     document.getElementById("analyzeBtn").addEventListener("click", () => this.analyzeAndCompile());
     document.getElementById("interpretBtn").addEventListener("click", () => this.interpretAtmosphere());
+    document.getElementById("stringJetBtn").addEventListener("click", () => this.toggleStringJet());
+    this.stringJetEngaged = false;
+  }
+
+  async toggleStringJet() {
+    const engage = !this.stringJetEngaged;
+    document.getElementById("stringJetStatus").textContent = engage ? "Engaging..." : "Disengaging...";
+
+    try {
+      const response = await fetch("/api/string-jet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ engage })
+      });
+
+      const result = await response.json();
+      const plane = result.plane || {};
+      this.stringJetEngaged = plane.engaged === true;
+
+      document.getElementById("interlockState").textContent = plane.interlock_open ? "OPEN" : "CLOSED";
+      document.getElementById("travelState").textContent = plane.travel_accessalized ? "ACCESSALIZED" : "SECURED";
+      document.getElementById("stringJetBtn").textContent = this.stringJetEngaged ? "Disengage String-Jet" : "Engage String-Jet";
+      document.getElementById("stringJetStatus").textContent = this.stringJetEngaged
+        ? "✓ Interlock open — travel accessalized"
+        : "✓ Interlock closed — travel secured";
+      this.updateStatus();
+    } catch (err) {
+      document.getElementById("stringJetStatus").textContent = "✕ String-jet request failed";
+    }
   }
 
   async updateStatus() {
