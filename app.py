@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
+import os
 import re
 import threading
 import time
@@ -20,6 +21,11 @@ lock = threading.Lock()
 coordinator = AgentCoordinator(backend_ai, frontend_ai, ui_agent)
 
 
+def utc_now_iso():
+    """Return the current UTC time as an ISO 8601 string."""
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
 def intent_of(code):
     low = code.lower()
     for word, name in (("receive", "receiver"), ("transmit", "transmitter"),
@@ -37,7 +43,7 @@ def compile_code(code):
         state["modules"][module_id] = {
             "module_id": module_id,
             "version": state["version"],
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": utc_now_iso(),
             "code_intent": intent_of(code),
             "optimizations": len(entry_points),
         }
@@ -52,6 +58,10 @@ def auto_upgrade():
                 major, minor, patch = state["version"].split(".")
                 state["version"] = f"{major}.{minor}.{int(patch) + 1}"
                 state["updates"] += 1
+                # Keep the agent-visible state in sync with the system version
+                # so the dashboard reflects autonomous upgrades.
+                backend_ai.version = state["version"]
+                backend_ai.updates = state["updates"]
 
 
 threading.Thread(target=auto_upgrade, daemon=True).start()
@@ -79,7 +89,7 @@ def build_deprecated_state_payload():
             "antenna_version": state["version"],
             "total_compilations": state["compilations"],
             "total_updates": state["updates"],
-            "last_activity": datetime.utcnow().isoformat() + "Z",
+            "last_activity": utc_now_iso(),
         }
     payload.update(snapshot)
     return payload
@@ -201,5 +211,6 @@ def api_health():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8000, debug=True)
+    debug = os.environ.get("FLASK_DEBUG", "").lower() in ("1", "true", "yes")
+    app.run(host="127.0.0.1", port=8000, debug=debug)
 

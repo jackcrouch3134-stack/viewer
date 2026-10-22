@@ -32,6 +32,10 @@ This project is organized around a multi-agent design:
 - `static/index.html` – dashboard UI
 - `static/app.js` – UI logic and live update calls
 - `static/style.css` – sci-fi control room styling
+- `static/viewer.html` – live Earth viewer (satellite, atmosphere, biological detection)
+- `static/viewer.css` / `static/viewer.js` – live viewer styling and canvas logic
+- `static/cartoon.html` – cartoon-edition Earth viewer
+- `static/cartoon.css` / `static/cartoon.js` – cartoon viewer styling and animation
 
 ## Project Goals
 
@@ -44,9 +48,11 @@ The system is designed to simulate an autonomous Earth viewing and analysis plat
 
 ## Run
 
-1. Install Python dependencies:
+1. Create a virtual environment and install Python dependencies:
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -61,6 +67,10 @@ python app.py
 ```text
 http://localhost:8000
 ```
+
+Other pages: `http://localhost:8000/viewer.html` (live viewer) and `http://localhost:8000/cartoon.html` (cartoon edition).
+
+To run the development server with the debugger enabled, set `FLASK_DEBUG=1` in the environment before starting the app. Debug mode is off by default.
 
 ## API Endpoints
 
